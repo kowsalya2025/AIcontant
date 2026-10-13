@@ -20,6 +20,11 @@ for _env_key in ('RENDER_EXTERNAL_HOSTNAME', 'RAILWAY_PUBLIC_DOMAIN', 'KOYEB_PUB
     if _host:
         ALLOWED_HOSTS.append(_host)
 
+# Hugging Face Spaces (allow direct and iframe-embedded access)
+ALLOWED_HOSTS += ['localhost', '127.0.0.1', '.huggingface.co', '.hf.space']
+X_FRAME_OPTIONS = 'ALLOWALL'
+CSRF_TRUSTED_ORIGINS = ['https://*.huggingface.co', 'https://*.hf.space']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
