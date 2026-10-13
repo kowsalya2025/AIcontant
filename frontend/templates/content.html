@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate Content — EduAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="app-page">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🎓</div>
+    <div><div class="sidebar-brand">EduAI</div><div class="sidebar-brand-sub">AI Learning Platform</div></div>
+  </div>
+  <div class="sidebar-section-label">Navigation</div>
+  <nav class="sidebar-nav">
+    <a href="/dashboard/" class="nav-item"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+    <a href="/content/"   class="nav-item active"><span class="nav-icon">📚</span><span>Generate Content</span></a>
+    <a href="/quiz/"      class="nav-item"><span class="nav-icon">📝</span><span>AI Quiz</span></a>
+    <a href="/profile/"   class="nav-item"><span class="nav-icon">👤</span><span>Profile</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="nav-item logout-btn" onclick="logout()"><span class="nav-icon">🚪</span><span>Logout</span></button>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">📚 Generate Learning Content</h1>
+      <p class="page-subtitle">AI-powered personalized notes, explanations and examples — RAG enhanced</p>
+    </div>
+  </header>
+
+  <div class="content-layout">
+    <div class="glass-card generator-panel">
+      <h2 class="panel-title">⚙️ Configure Your Content</h2>
+      <form id="contentForm" onsubmit="generateContent(event)">
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <select id="subject" class="form-input form-select">
+            <option value="python">🐍 Python Programming</option>
+            <option value="machine_learning">🤖 Machine Learning</option>
+            <option value="data_science">📊 Data Science</option>
+            <option value="mathematics">📐 Mathematics</option>
+            <option value="web_development">🌐 Web Development</option>
+            <option value="algorithms">⚙️ Algorithms & Data Structures</option>
+            <option value="databases">🗄️ Databases</option>
+            <option value="cybersecurity">🔐 Cybersecurity</option>
+            <option value="networking">🌍 Networking</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Topic</label>
+          <input type="text" id="topic" class="form-input" placeholder="e.g., List comprehensions, Neural networks…" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Skill Level</label>
+          <div class="level-selector">
+            <label class="level-option"><input type="radio" name="skill_level" value="beginner" checked><span class="level-btn">🌱 Beginner</span></label>
+            <label class="level-option"><input type="radio" name="skill_level" value="intermediate"><span class="level-btn">⚡ Intermediate</span></label>
+            <label class="level-option"><input type="radio" name="skill_level" value="advanced"><span class="level-btn">🚀 Advanced</span></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Content Type</label>
+          <div class="type-selector">
+            <label class="type-option"><input type="radio" name="content_type" value="notes" checked><span class="type-btn">📓 Notes</span></label>
+            <label class="type-option"><input type="radio" name="content_type" value="explanation"><span class="type-btn">💡 Explanation</span></label>
+            <label class="type-option"><input type="radio" name="content_type" value="examples"><span class="type-btn">🔬 Examples</span></label>
+            <label class="type-option"><input type="radio" name="content_type" value="summary"><span class="type-btn">📋 Summary</span></label>
+            <label class="type-option"><input type="radio" name="content_type" value="deep_dive"><span class="type-btn">🔍 Deep Dive</span></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Custom Instructions <span class="optional-tag">optional</span></label>
+          <textarea id="customInstructions" class="form-input form-textarea" placeholder="e.g., Focus on practical examples, use simple language…"></textarea>
+        </div>
+        <button type="submit" class="btn-primary btn-full" id="generateBtn">
+          <span id="generateBtnText">✨ Generate with AI</span>
+          <span id="generateBtnLoader" class="btn-loader hidden">⏳</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="content-viewer-panel">
+      <div id="contentPlaceholder" class="content-placeholder">
+        <div class="placeholder-icon">🤖</div>
+        <h3>AI-Generated Content Appears Here</h3>
+        <p>Configure your topic and click Generate — Gemini AI retrieves context from the RAG knowledge base and writes personalized content just for you.</p>
+        <div class="rag-badge">🔍 FAISS + RAG Enhanced</div>
+      </div>
+      <div id="contentResult" class="hidden">
+        <div class="content-meta glass-card">
+          <div class="content-meta-inner">
+            <div>
+              <span id="resultTopic" class="content-topic-badge"></span>
+              <span id="resultLevel" class="content-level-badge"></span>
+              <span id="ragBadge" class="rag-active-badge hidden">🔍 RAG Enhanced</span>
+            </div>
+            <div class="content-actions">
+              <button class="btn-icon" onclick="copyContent()" title="Copy">📋</button>
+              <button class="btn-icon" onclick="bookmarkContent()" id="bookmarkBtn" title="Bookmark">🔖</button>
+              <button class="btn-sm btn-secondary" onclick="generateQuizFromContent()">📝 Quiz Me</button>
+            </div>
+          </div>
+        </div>
+        <div id="contentBody" class="glass-card content-body markdown-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card" style="margin-top:2rem;padding:1.75rem">
+    <div class="panel-header">
+      <h2 class="panel-title">📖 Recent Content</h2>
+      <span id="historyCount" style="font-size:.8rem;color:var(--t4)"></span>
+    </div>
+    <div id="contentHistoryList" class="history-grid"></div>
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/content.js' %}"></script>
+</body>
+</html>

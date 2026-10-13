@@ -1,0 +1,46 @@
+gunicorn==23.0.0
+whitenoise==6.8.2
+dj-database-url==2.3.0
+Django==4.2.16
+djangorestframework==3.15.2
+django-cors-headers==4.4.0
+python-dotenv==1.0.1
+
+# ── PostgreSQL driver ─────────────────────────────────────────────
+psycopg2-binary==2.9.9
+
+# ── FastAPI (mounted alongside Django for modern async endpoints) ──
+fastapi==0.115.4
+uvicorn[standard]==0.32.0
+httpx==0.27.2          # async HTTP client used by FastAPI test client
+pydantic==2.9.2        # FastAPI request/response models
+python-multipart==0.0.12  # FastAPI file uploads
+
+# ── Google Gemini (free API) ───────────────────────────────────────
+google-generativeai==0.8.3
+
+# ── LangChain RAG ─────────────────────────────────────────────────
+langchain==0.3.7
+langchain-community==0.3.7
+langchain-google-genai==2.0.4
+
+# ── Embeddings & Vector Stores ────────────────────────────────────
+sentence-transformers==3.3.0
+faiss-cpu==1.9.0
+chromadb==0.5.20        # alternative/additive vector store to FAISS
+
+# ── Document processing ───────────────────────────────────────────
+pypdf==5.1.0
+python-docx==1.1.2
+unstructured==0.16.6
+
+# ── Hugging Face Transformers (local inference fallback) ──────────
+transformers==4.46.3
+torch==2.5.1
+accelerate==1.1.1       # faster HuggingFace model loading
+
+# ── Utilities ─────────────────────────────────────────────────────
+Pillow==11.0.0
+markdown==3.7
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4

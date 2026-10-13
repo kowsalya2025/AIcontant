@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduAI — Personalized AI Learning Platform</title>
+  <meta name="description" content="AI-powered personalized learning platform using Gemini, RAG, LangChain and FAISS.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="auth-page">
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="auth-container">
+
+  <!-- Left: Dark green hero -->
+  <div class="auth-hero">
+    <div class="logo-mark">
+      <div class="logo-icon">🎓</div>
+      <div class="brand-name">Edu<span>AI</span></div>
+    </div>
+    <div class="brand-tagline">Learn Smarter with AI</div>
+    <p class="brand-desc">
+      A personalized AI learning platform that generates custom educational content
+      based on your skill level, learning style, and performance — powered by
+      Gemini 2.5, RAG, LangChain, and FAISS.
+    </p>
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feat-icon green">🧠</div>
+        <div>
+          <div class="feat-title">Personalized Content Generation</div>
+          <div class="feat-sub">Notes, explanations & examples tailored to you</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feat-icon teal">🔍</div>
+        <div>
+          <div class="feat-title">RAG Knowledge Retrieval</div>
+          <div class="feat-sub">FAISS semantic search over your documents</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feat-icon lime">📝</div>
+        <div>
+          <div class="feat-title">Adaptive AI Quizzes</div>
+          <div class="feat-sub">MCQs generated & graded with Gemini AI feedback</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feat-icon emerald">🎯</div>
+        <div>
+          <div class="feat-title">Performance-Driven Recommendations</div>
+          <div class="feat-sub">Adapts to weak topics, quiz scores & learning style</div>
+        </div>
+      </div>
+    </div>
+    <div class="tech-badges">
+      <span class="tech-badge">Python</span>
+      <span class="tech-badge">FastAPI</span>
+      <span class="tech-badge">Django</span>
+      <span class="tech-badge">Gemini 2.5</span>
+      <span class="tech-badge">LangChain</span>
+      <span class="tech-badge">RAG</span>
+      <span class="tech-badge">FAISS</span>
+      <span class="tech-badge">HuggingFace</span>
+      <span class="tech-badge">PostgreSQL</span>
+      <span class="tech-badge">Docker</span>
+    </div>
+  </div>
+
+  <!-- Right: White form panel -->
+  <div class="auth-card">
+    <div class="auth-card-title" id="authCardTitle">Welcome back</div>
+    <div class="auth-card-sub"   id="authCardSub">Sign in to continue your learning journey</div>
+
+    <div class="tab-switcher">
+      <button class="tab-btn active" id="loginTab"    onclick="switchTab('login')">Sign In</button>
+      <button class="tab-btn"        id="registerTab" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <!-- Login -->
+    <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <div class="input-wrapper">
+          <span class="input-icon">✉️</span>
+          <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required autocomplete="email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+        </div>
+      </div>
+      <div id="loginError" class="error-msg hidden"></div>
+      <button type="submit" class="btn-primary btn-full" id="loginBtn">
+        <span class="btn-text">Sign In →</span>
+        <span class="btn-loader hidden">⏳</span>
+      </button>
+      <p class="auth-switch">Don't have an account? <a href="#" onclick="switchTab('register')">Sign up free</a></p>
+    </form>
+
+    <!-- Register -->
+    <form id="registerForm" class="auth-form hidden" onsubmit="handleRegister(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="regName" class="form-input" placeholder="Alice Johnson" required autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="regEmail" class="form-input" placeholder="alice@example.com" required autocomplete="email">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Skill Level</label>
+          <select id="regSkill" class="form-input form-select">
+            <option value="beginner">🌱 Beginner</option>
+            <option value="intermediate">⚡ Intermediate</option>
+            <option value="advanced">🚀 Advanced</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Learning Style</label>
+          <select id="regStyle" class="form-input form-select">
+            <option value="visual">👁️ Visual</option>
+            <option value="reading">📖 Reading / Writing</option>
+            <option value="kinesthetic">🤲 Hands-on</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="regPassword" class="form-input" placeholder="Min 8 characters" required minlength="8" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" id="regPassword2" class="form-input" placeholder="Repeat password" required autocomplete="new-password">
+        </div>
+      </div>
+      <div id="registerError" class="error-msg hidden"></div>
+      <button type="submit" class="btn-primary btn-full" id="registerBtn">
+        <span class="btn-text">Create Free Account →</span>
+        <span class="btn-loader hidden">⏳</span>
+      </button>
+      <p class="auth-switch">Already have an account? <a href="#" onclick="switchTab('login')">Sign in</a></p>
+    </form>
+  </div>
+
+</div>
+
+<script src="{% static 'js/app.js' %}"></script>
+<script>
+function switchTab(tab) {
+  const lf=document.getElementById('loginForm'),rf=document.getElementById('registerForm');
+  const lt=document.getElementById('loginTab'),rt=document.getElementById('registerTab');
+  const title=document.getElementById('authCardTitle'),sub=document.getElementById('authCardSub');
+  if(tab==='login'){
+    lf.classList.remove('hidden');rf.classList.add('hidden');
+    lt.classList.add('active');rt.classList.remove('active');
+    title.textContent='Welcome back';sub.textContent='Sign in to continue your learning journey';
+  } else {
+    lf.classList.add('hidden');rf.classList.remove('hidden');
+    lt.classList.remove('active');rt.classList.add('active');
+    title.textContent='Join EduAI';sub.textContent='Create your free account and start learning today';
+  }
+}
+</script>
+</body>
+</html>

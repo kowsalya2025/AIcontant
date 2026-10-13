@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile — EduAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="app-page">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🎓</div>
+    <div><div class="sidebar-brand">EduAI</div><div class="sidebar-brand-sub">AI Learning Platform</div></div>
+  </div>
+  <div class="sidebar-section-label">Navigation</div>
+  <nav class="sidebar-nav">
+    <a href="/dashboard/" class="nav-item"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+    <a href="/content/"   class="nav-item"><span class="nav-icon">📚</span><span>Generate Content</span></a>
+    <a href="/quiz/"      class="nav-item"><span class="nav-icon">📝</span><span>AI Quiz</span></a>
+    <a href="/profile/"   class="nav-item active"><span class="nav-icon">👤</span><span>Profile</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="nav-item logout-btn" onclick="logout()"><span class="nav-icon">🚪</span><span>Logout</span></button>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">👤 Learning Profile</h1>
+      <p class="page-subtitle">Customize your learning experience and manage your knowledge base</p>
+    </div>
+    <button class="btn-primary" onclick="saveProfile()">💾 Save Changes</button>
+  </header>
+
+  <div class="profile-layout">
+
+    <!-- Sticky Profile Card -->
+    <div class="glass-card profile-card">
+      <div class="profile-avatar-section">
+        <div class="avatar-circle" id="avatarCircle"><span id="avatarInitials">?</span></div>
+        <div class="profile-info-brief">
+          <h2 id="profileName">Loading…</h2>
+          <p id="profileEmail" class="profile-email"></p>
+          <div class="profile-level-badge" id="profileLevelBadge">Beginner</div>
+        </div>
+      </div>
+      <div class="profile-stats-mini">
+        <div class="mini-stat"><span class="ms-val" id="ps-points">0</span><span class="ms-label">Points</span></div>
+        <div class="mini-stat"><span class="ms-val" id="ps-streak">0</span><span class="ms-label">Streak</span></div>
+        <div class="mini-stat"><span class="ms-val" id="ps-quizzes">0</span><span class="ms-label">Quizzes</span></div>
+      </div>
+      <div id="profileSuccess" class="success-msg hidden">✅ Profile saved!</div>
+      <div id="profileError"   class="error-msg   hidden"></div>
+    </div>
+
+    <!-- Right Column -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem">
+
+      <!-- Edit Form -->
+      <div class="glass-card" style="padding:1.75rem">
+        <h2 class="panel-title">✏️ Personal Information</h2>
+        <form id="profileForm" onsubmit="saveProfile(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="editName" class="form-input" placeholder="Your full name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" id="editEmail" class="form-input" disabled style="opacity:.55">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:.75rem">
+            <label class="form-label">Skill Level</label>
+            <div class="level-selector">
+              <label class="level-option"><input type="radio" name="edit_skill" value="beginner"     id="skillBeginner"><span class="level-btn">🌱 Beginner</span></label>
+              <label class="level-option"><input type="radio" name="edit_skill" value="intermediate" id="skillIntermediate"><span class="level-btn">⚡ Intermediate</span></label>
+              <label class="level-option"><input type="radio" name="edit_skill" value="advanced"     id="skillAdvanced"><span class="level-btn">🚀 Advanced</span></label>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:.75rem">
+            <label class="form-label">Learning Style</label>
+            <div class="style-selector">
+              <label class="style-option">
+                <input type="radio" name="edit_style" value="visual" id="styleVisual">
+                <span class="style-btn"><span class="style-icon">👁️</span><span>Visual</span><small>Images & diagrams</small></span>
+              </label>
+              <label class="style-option">
+                <input type="radio" name="edit_style" value="reading" id="styleReading">
+                <span class="style-btn"><span class="style-icon">📖</span><span>Reading</span><small>Text & notes</small></span>
+              </label>
+              <label class="style-option">
+                <input type="radio" name="edit_style" value="kinesthetic" id="styleKinesthetic">
+                <span class="style-btn"><span class="style-icon">🤲</span><span>Hands-on</span><small>Practice & doing</small></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:.75rem">
+            <label class="form-label">Preferred Subjects</label>
+            <div class="subject-grid">
+              <label class="subject-chip"><input type="checkbox" value="python"><span>🐍 Python</span></label>
+              <label class="subject-chip"><input type="checkbox" value="machine_learning"><span>🤖 ML</span></label>
+              <label class="subject-chip"><input type="checkbox" value="data_science"><span>📊 Data Science</span></label>
+              <label class="subject-chip"><input type="checkbox" value="mathematics"><span>📐 Mathematics</span></label>
+              <label class="subject-chip"><input type="checkbox" value="web_development"><span>🌐 Web Dev</span></label>
+              <label class="subject-chip"><input type="checkbox" value="algorithms"><span>⚙️ Algorithms</span></label>
+              <label class="subject-chip"><input type="checkbox" value="databases"><span>🗄️ Databases</span></label>
+              <label class="subject-chip"><input type="checkbox" value="cybersecurity"><span>🔐 Security</span></label>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:.75rem">
+            <label class="form-label">Daily Study Goal: <span id="goalLabel" style="color:var(--green-600);font-weight:900">30</span> min</label>
+            <input type="range" id="dailyGoal" min="15" max="120" step="15" value="30" class="range-input"
+              oninput="document.getElementById('goalLabel').textContent=this.value">
+            <div class="range-labels"><span>15 min</span><span>1 hr</span><span>2 hrs</span></div>
+          </div>
+        </form>
+      </div>
+
+      <!-- RAG Upload -->
+      <div class="glass-card" style="padding:1.75rem">
+        <h2 class="panel-title">📄 Knowledge Base (RAG)</h2>
+        <p class="panel-desc">
+          Upload PDFs, TXTs or DOCX files to enhance AI content generation.
+          Documents are chunked with <strong>LangChain</strong> and indexed into <strong>FAISS</strong> for semantic search.
+        </p>
+        <form id="uploadForm" onsubmit="uploadDocument(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Document Title</label>
+              <input type="text" id="docTitle" class="form-input" placeholder="e.g., Advanced Python Notes">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <select id="docSubject" class="form-input form-select">
+                <option value="python">Python</option>
+                <option value="machine_learning">Machine Learning</option>
+                <option value="data_science">Data Science</option>
+                <option value="mathematics">Mathematics</option>
+                <option value="web_development">Web Development</option>
+                <option value="general">General</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:.5rem">
+            <label class="form-label">File <span class="optional-tag">PDF · TXT · DOCX</span></label>
+            <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('docFile').click()">
+              <span class="file-upload-icon">📎</span>
+              <span id="fileUploadLabel">Click to select a file</span>
+              <small style="color:var(--t4)">Supported: PDF, TXT, DOCX — indexed into FAISS for RAG</small>
+              <input type="file" id="docFile" accept=".pdf,.txt,.docx" style="display:none"
+                onchange="document.getElementById('fileUploadLabel').textContent=this.files[0]?.name||'Click to select'">
+            </div>
+          </div>
+          <div id="uploadMsg" class="hidden" style="margin:.5rem 0"></div>
+          <button type="submit" class="btn-primary" id="uploadBtn" style="margin-top:.5rem">
+            <span id="uploadBtnText">📤 Upload & Index</span>
+            <span id="uploadBtnLoader" class="btn-loader hidden">⏳</span>
+          </button>
+        </form>
+        <div id="uploadedDocsList" class="uploaded-docs-list"></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/profile.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: eduai
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DB_ENGINE
+        value: django.db.backends.postgresql
+      - key: DB_NAME
+        fromDatabase:
+          name: eduai-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: eduai-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: eduai-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: eduai-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: eduai-db
+          property: port
+
+databases:
+  - name: eduai-db
+    plan: free

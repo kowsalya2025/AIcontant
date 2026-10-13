@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  # ─── PostgreSQL database ───────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-eduai}
+      POSTGRES_USER: ${POSTGRES_USER:-eduai_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eduai_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-eduai_user} -d ${POSTGRES_DB:-eduai}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Django / DRF backend ─────────────────────────
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Django
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      DEBUG: ${DEBUG:-True}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0}
+      # AI
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      # Database — PostgreSQL
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: ${POSTGRES_DB:-eduai}
+      DB_USER: ${POSTGRES_USER:-eduai_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-eduai_pass}
+      DB_HOST: db
+      DB_PORT: 5432
+    volumes:
+      - .:/app
+      - faiss_index:/app/faiss_index
+      - media_files:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+
+volumes:
+  postgres_data:
+  faiss_index:
+  media_files:

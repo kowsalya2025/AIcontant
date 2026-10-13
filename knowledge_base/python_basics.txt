@@ -1,0 +1,286 @@
+# Python Programming - Complete Beginner to Intermediate Guide
+
+## 1. Introduction to Python
+
+Python is a high-level, interpreted, general-purpose programming language created by Guido van Rossum in 1991. It emphasizes code readability and simplicity.
+
+### Key Features
+- Easy to read and write syntax
+- Dynamically typed (no need to declare variable types)
+- Interpreted language (runs line by line)
+- Large standard library
+- Cross-platform compatibility
+- Strong community support
+
+### Why Learn Python?
+Python is used in Web Development, Data Science, Machine Learning, Automation, Scientific Computing, and Game Development.
+
+---
+
+## 2. Variables and Data Types
+
+A variable is a named location in memory that stores a value.
+
+### Creating Variables
+```python
+name = "Alice"        # String
+age = 25              # Integer
+height = 5.7          # Float
+is_student = True     # Boolean
+data = None           # NoneType
+```
+
+### Python Data Types
+- **int**: Whole numbers (42, -7, 0)
+- **float**: Decimal numbers (3.14, -2.5)
+- **str**: Text ("hello", 'world')
+- **bool**: True or False
+- **list**: Ordered, mutable collection [1, 2, 3]
+- **tuple**: Ordered, immutable collection (1, 2, 3)
+- **dict**: Key-value pairs {"name": "Alice", "age": 25}
+- **set**: Unordered unique elements {1, 2, 3}
+
+### Type Conversion
+```python
+x = int("42")       # String to integer
+y = str(100)        # Integer to string
+z = float("3.14")   # String to float
+```
+
+---
+
+## 3. Operators
+
+### Arithmetic Operators
+- `+` Addition
+- `-` Subtraction
+- `*` Multiplication
+- `/` Division (returns float)
+- `//` Floor division (returns int)
+- `%` Modulus (remainder)
+- `**` Exponentiation (power)
+
+### Comparison Operators
+- `==` Equal to
+- `!=` Not equal to
+- `<`, `>`, `<=`, `>=` Less/greater than
+
+### Logical Operators
+- `and` Both conditions must be True
+- `or` At least one condition must be True
+- `not` Inverts the condition
+
+---
+
+## 4. Control Flow
+
+### If-Else Statements
+```python
+age = 18
+if age >= 18:
+    print("You are an adult")
+elif age >= 13:
+    print("You are a teenager")
+else:
+    print("You are a child")
+```
+
+### For Loops
+```python
+# Loop over a range
+for i in range(5):
+    print(i)  # 0, 1, 2, 3, 4
+
+# Loop over a list
+fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+    print(fruit)
+```
+
+### While Loops
+```python
+count = 0
+while count < 5:
+    print(count)
+    count += 1
+```
+
+### Loop Control
+- `break` — Exit the loop immediately
+- `continue` — Skip to next iteration
+- `pass` — Do nothing (placeholder)
+
+---
+
+## 5. Functions
+
+A function is a reusable block of code that performs a specific task.
+
+### Defining Functions
+```python
+def greet(name):
+    """Greet a person by name."""
+    return f"Hello, {name}!"
+
+result = greet("Alice")
+print(result)  # Hello, Alice!
+```
+
+### Default Parameters
+```python
+def power(base, exponent=2):
+    return base ** exponent
+
+print(power(3))      # 9  (3^2)
+print(power(3, 3))   # 27 (3^3)
+```
+
+### *args and **kwargs
+```python
+def sum_all(*args):
+    return sum(args)
+
+def display_info(**kwargs):
+    for key, value in kwargs.items():
+        print(f"{key}: {value}")
+```
+
+### Lambda Functions
+```python
+square = lambda x: x ** 2
+print(square(4))  # 16
+```
+
+---
+
+## 6. Lists and Collections
+
+### List Operations
+```python
+numbers = [1, 2, 3, 4, 5]
+numbers.append(6)        # Add to end
+numbers.insert(0, 0)     # Insert at position
+numbers.remove(3)        # Remove first occurrence
+numbers.pop()            # Remove and return last
+numbers.sort()           # Sort in place
+numbers.reverse()        # Reverse in place
+length = len(numbers)    # Get length
+```
+
+### List Comprehension
+```python
+squares = [x**2 for x in range(10)]
+evens = [x for x in range(20) if x % 2 == 0]
+```
+
+### Dictionaries
+```python
+student = {
+    "name": "Alice",
+    "grade": "A",
+    "score": 95
+}
+# Access
+print(student["name"])           # Alice
+print(student.get("age", "N/A")) # N/A (default)
+# Update
+student["score"] = 98
+# Iterate
+for key, value in student.items():
+    print(f"{key}: {value}")
+```
+
+---
+
+## 7. Object-Oriented Programming (OOP)
+
+### Classes and Objects
+```python
+class Animal:
+    def __init__(self, name, species):
+        self.name = name
+        self.species = species
+
+    def speak(self):
+        return f"{self.name} makes a sound"
+
+    def __str__(self):
+        return f"{self.name} ({self.species})"
+
+# Create object
+dog = Animal("Rex", "Dog")
+print(dog)          # Rex (Dog)
+print(dog.speak())  # Rex makes a sound
+```
+
+### Inheritance
+```python
+class Dog(Animal):
+    def __init__(self, name):
+        super().__init__(name, "Dog")
+
+    def speak(self):  # Override parent method
+        return f"{self.name} says: Woof!"
+
+rex = Dog("Rex")
+print(rex.speak())  # Rex says: Woof!
+```
+
+---
+
+## 8. Exception Handling
+
+```python
+try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("Cannot divide by zero!")
+except ValueError as e:
+    print(f"Value error: {e}")
+else:
+    print("Success!")
+finally:
+    print("This always runs")
+```
+
+---
+
+## 9. File Handling
+
+```python
+# Write to file
+with open("output.txt", "w") as f:
+    f.write("Hello, World!\n")
+    f.write("Python is awesome!")
+
+# Read from file
+with open("output.txt", "r") as f:
+    content = f.read()
+    print(content)
+
+# Append to file
+with open("output.txt", "a") as f:
+    f.write("\nNew line added.")
+```
+
+---
+
+## 10. Modules and Packages
+
+```python
+# Import standard library modules
+import os
+import sys
+import math
+import random
+import datetime
+
+# Common uses
+print(math.pi)               # 3.14159...
+print(random.randint(1, 10)) # Random integer 1-10
+print(os.getcwd())           # Current directory
+
+# Import specific functions
+from math import sqrt, ceil
+print(sqrt(16))  # 4.0
+```

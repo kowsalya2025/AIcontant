@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — EduAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="app-page">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🎓</div>
+    <div>
+      <div class="sidebar-brand">EduAI</div>
+      <div class="sidebar-brand-sub">AI Learning Platform</div>
+    </div>
+  </div>
+  <div class="sidebar-section-label">Navigation</div>
+  <nav class="sidebar-nav">
+    <a href="/dashboard/" class="nav-item active"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+    <a href="/content/"   class="nav-item"><span class="nav-icon">📚</span><span>Generate Content</span></a>
+    <a href="/quiz/"      class="nav-item"><span class="nav-icon">📝</span><span>AI Quiz</span></a>
+    <a href="/profile/"   class="nav-item"><span class="nav-icon">👤</span><span>Profile</span></a>
+  </nav>
+  <div class="sidebar-section-label">System</div>
+  <nav class="sidebar-nav" style="flex:0">
+    <a href="/admin/" target="_blank" class="nav-item"><span class="nav-icon">⚙️</span><span>Admin Panel</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="nav-item logout-btn" onclick="logout()"><span class="nav-icon">🚪</span><span>Logout</span></button>
+  </div>
+</aside>
+
+<main class="main-content">
+
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" id="greetingText">Welcome back! 👋</h1>
+      <p class="page-subtitle">Your personalized AI learning overview</p>
+    </div>
+    <div class="header-actions">
+      <div class="header-pill pill-streak">🔥 <span id="streakCount">0</span> day streak</div>
+      <div class="header-pill pill-points">⭐ <span id="pointsCount">0</span> pts</div>
+    </div>
+  </header>
+
+  <!-- Tech stack banner -->
+  <div class="tech-banner">
+    <span class="tech-banner-label">Powered by</span>
+    <span class="tech-pill">Python</span>
+    <span class="tech-pill">FastAPI</span>
+    <span class="tech-pill">Django</span>
+    <span class="tech-pill">Gemini 2.5</span>
+    <span class="tech-pill">LangChain</span>
+    <span class="tech-pill">RAG</span>
+    <span class="tech-pill">FAISS</span>
+    <span class="tech-pill">ChromaDB</span>
+    <span class="tech-pill">HuggingFace</span>
+    <span class="tech-pill">Sentence-Transformers</span>
+    <span class="tech-pill">PostgreSQL</span>
+    <span class="tech-pill">Docker</span>
+  </div>
+
+  <!-- Stats -->
+  <section class="stats-grid">
+    <div class="stat-card glass-card">
+      <div class="stat-icon green">📊</div>
+      <div>
+        <div class="stat-value" id="avgScore">—</div>
+        <div class="stat-label">Avg Quiz Score</div>
+      </div>
+    </div>
+    <div class="stat-card glass-card">
+      <div class="stat-icon teal">📚</div>
+      <div>
+        <div class="stat-value" id="contentCount">0</div>
+        <div class="stat-label">Content Generated</div>
+      </div>
+    </div>
+    <div class="stat-card glass-card">
+      <div class="stat-icon amber">🎯</div>
+      <div>
+        <div class="stat-value" id="quizCount">0</div>
+        <div class="stat-label">Quizzes Taken</div>
+      </div>
+    </div>
+    <div class="stat-card glass-card">
+      <div class="stat-icon emerald">✅</div>
+      <div>
+        <div class="stat-value" id="topicsCount">0</div>
+        <div class="stat-label">Topics Mastered</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="dashboard-grid">
+
+    <!-- Quick Actions -->
+    <div class="glass-card dashboard-panel">
+      <h2 class="panel-title">⚡ Quick Actions</h2>
+      <div class="quick-actions">
+        <a href="/content/" class="action-card">
+          <div class="action-icon">🧠</div>
+          <div>
+            <div class="action-title">Generate Learning Content</div>
+            <div class="action-desc">Personalized notes & explanations via Gemini + RAG</div>
+          </div>
+          <span class="action-arrow">→</span>
+        </a>
+        <a href="/quiz/" class="action-card">
+          <div class="action-icon">📝</div>
+          <div>
+            <div class="action-title">Take an AI Quiz</div>
+            <div class="action-desc">Adaptive MCQs with automated grading & feedback</div>
+          </div>
+          <span class="action-arrow">→</span>
+        </a>
+        <a href="/profile/" class="action-card">
+          <div class="action-icon">📄</div>
+          <div>
+            <div class="action-title">Upload Knowledge Base</div>
+            <div class="action-desc">Index your PDFs into FAISS for RAG search</div>
+          </div>
+          <span class="action-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- AI Recommendations -->
+    <div class="glass-card dashboard-panel">
+      <h2 class="panel-title">🎯 AI Recommendations</h2>
+      <div id="recommendationsContainer">
+        <div class="loading-skeleton">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Content -->
+    <div class="glass-card dashboard-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">📖 Recent Lessons</h2>
+        <a href="/content/" class="panel-link">View all →</a>
+      </div>
+      <div id="recentContentList">
+        <div class="empty-state">
+          <span class="empty-icon">📖</span>
+          <p>No content generated yet.</p>
+          <a href="/content/" class="btn-primary btn-sm">Generate Content</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Learning Profile -->
+    <div class="glass-card dashboard-panel">
+      <h2 class="panel-title">👤 Learning Profile</h2>
+      <div class="profile-badges">
+        <div class="profile-badge">
+          <span class="badge-label">Skill Level</span>
+          <span class="badge-value" id="skillBadge">—</span>
+        </div>
+        <div class="profile-badge">
+          <span class="badge-label">Learning Style</span>
+          <span class="badge-value" id="styleBadge">—</span>
+        </div>
+      </div>
+      <div id="weakTopicsSection" style="display:none;margin-top:.75rem">
+        <div class="subsection-title">⚠️ Focus Areas</div>
+        <div id="weakTopicsList" class="topic-tags"></div>
+      </div>
+      <div id="strongTopicsSection" style="display:none;margin-top:.75rem">
+        <div class="subsection-title">💪 Strong Topics</div>
+        <div id="strongTopicsList" class="topic-tags"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+</body>
+</html>

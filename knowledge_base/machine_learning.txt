@@ -1,0 +1,227 @@
+# Machine Learning - Fundamentals and Core Concepts
+
+## 1. What is Machine Learning?
+
+Machine Learning (ML) is a subset of Artificial Intelligence (AI) that enables computers to learn from data and make decisions without being explicitly programmed for every scenario.
+
+### Types of Machine Learning
+
+**Supervised Learning**: The model learns from labeled data (input-output pairs).
+- Examples: Linear Regression, Logistic Regression, Decision Trees, Random Forest, SVM, Neural Networks
+- Use cases: Email spam detection, house price prediction, image classification
+
+**Unsupervised Learning**: The model finds patterns in unlabeled data.
+- Examples: K-Means Clustering, PCA, Autoencoders
+- Use cases: Customer segmentation, anomaly detection, dimensionality reduction
+
+**Reinforcement Learning**: An agent learns by interacting with an environment and receiving rewards/penalties.
+- Examples: Q-Learning, Policy Gradient
+- Use cases: Game playing (Chess, Go), robotics, autonomous vehicles
+
+---
+
+## 2. Key Concepts
+
+### The ML Workflow
+1. **Data Collection** — Gather relevant, high-quality data
+2. **Data Preprocessing** — Clean, normalize, handle missing values
+3. **Exploratory Data Analysis (EDA)** — Understand patterns and distributions
+4. **Feature Engineering** — Create/select meaningful features
+5. **Model Selection** — Choose appropriate algorithm
+6. **Training** — Fit model to training data
+7. **Evaluation** — Measure performance on test data
+8. **Deployment** — Integrate model into applications
+
+### Train/Validation/Test Split
+- **Training set** (70-80%): Model learns from this data
+- **Validation set** (10-15%): Tune hyperparameters
+- **Test set** (10-15%): Final evaluation (never seen during training)
+
+---
+
+## 3. Linear Regression
+
+Predicts a continuous output value based on input features.
+
+### Formula
+y = w₁x₁ + w₂x₂ + ... + wₙxₙ + b
+
+Where: y = prediction, w = weights, x = features, b = bias
+
+### Cost Function (MSE)
+MSE = (1/n) × Σ(yᵢ - ŷᵢ)²
+
+### Python Implementation
+```python
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+X = np.array([[1], [2], [3], [4], [5]])
+y = np.array([2, 4, 6, 8, 10])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+predictions = model.predict(X_test)
+print(f"R² Score: {model.score(X_test, y_test):.4f}")
+```
+
+---
+
+## 4. Logistic Regression
+
+Used for binary classification problems. Outputs probability between 0 and 1.
+
+### Sigmoid Function
+σ(z) = 1 / (1 + e⁻ᶻ)
+
+### Python Implementation
+```python
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+print(classification_report(y_test, y_pred))
+```
+
+---
+
+## 5. Decision Trees
+
+A tree-like model that makes decisions by splitting data based on feature values.
+
+### Key Concepts
+- **Root Node**: Starting point (best splitting feature)
+- **Internal Nodes**: Feature tests
+- **Leaf Nodes**: Final predictions
+- **Gini Impurity**: Measures class mixing in a node
+- **Information Gain**: Reduction in entropy after a split
+
+### Advantages
+- Easy to interpret and visualize
+- No need for feature scaling
+- Handles both numerical and categorical data
+
+### Disadvantages
+- Prone to overfitting
+- Sensitive to small data changes
+
+---
+
+## 6. Random Forest
+
+An ensemble method that combines multiple decision trees.
+
+### How it Works
+1. Create N random subsets of training data (bootstrapping)
+2. Train a decision tree on each subset
+3. Each tree votes on the final prediction (classification) or averages (regression)
+
+### Key Hyperparameters
+- `n_estimators`: Number of trees (100-500 typical)
+- `max_depth`: Maximum tree depth
+- `min_samples_split`: Minimum samples to split a node
+- `max_features`: Number of features per split
+
+```python
+from sklearn.ensemble import RandomForestClassifier
+
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+
+# Feature importance
+importances = rf.feature_importances_
+```
+
+---
+
+## 7. Model Evaluation Metrics
+
+### Classification Metrics
+- **Accuracy** = (TP + TN) / (TP + TN + FP + FN)
+- **Precision** = TP / (TP + FP) — How many predicted positives are actually positive
+- **Recall** = TP / (TP + FN) — How many actual positives were captured
+- **F1 Score** = 2 × (Precision × Recall) / (Precision + Recall)
+- **ROC-AUC**: Area under the ROC curve
+
+### Regression Metrics
+- **MSE** (Mean Squared Error): Average squared differences
+- **RMSE** (Root MSE): Square root of MSE (same units as target)
+- **MAE** (Mean Absolute Error): Average absolute differences
+- **R²** (R-squared): Proportion of variance explained (0 to 1)
+
+---
+
+## 8. Overfitting and Underfitting
+
+### Overfitting
+Model memorizes training data but performs poorly on new data.
+**Signs**: High training accuracy, low test accuracy.
+**Solutions**: 
+- Regularization (L1/Lasso, L2/Ridge)
+- Cross-validation
+- Reduce model complexity
+- Get more training data
+- Dropout (neural networks)
+
+### Underfitting
+Model is too simple to capture patterns.
+**Signs**: Low training AND test accuracy.
+**Solutions**:
+- Increase model complexity
+- Add more features
+- Reduce regularization
+- Train longer
+
+---
+
+## 9. Neural Networks Basics
+
+A neural network is inspired by the human brain, consisting of interconnected neurons (nodes).
+
+### Architecture
+- **Input Layer**: Receives raw features
+- **Hidden Layers**: Transform and learn patterns
+- **Output Layer**: Final prediction
+
+### Activation Functions
+- **ReLU** (Rectified Linear Unit): max(0, x) — Most common in hidden layers
+- **Sigmoid**: 1/(1+e⁻ˣ) — Output layer for binary classification
+- **Softmax**: Multi-class classification output
+- **Tanh**: Output range (-1, 1)
+
+### Backpropagation
+The algorithm for training neural networks:
+1. Forward pass: Calculate predictions
+2. Compute loss (error)
+3. Backward pass: Calculate gradients using chain rule
+4. Update weights using optimizer (SGD, Adam)
+
+---
+
+## 10. Feature Engineering
+
+### Common Techniques
+- **Normalization/Scaling**: StandardScaler, MinMaxScaler
+- **Encoding**: One-Hot Encoding for categorical variables
+- **Handling Missing Values**: Mean/median imputation, forward fill
+- **Feature Selection**: Correlation analysis, feature importance
+- **Dimensionality Reduction**: PCA, t-SNE
+
+```python
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.impute import SimpleImputer
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X_train)
+
+imputer = SimpleImputer(strategy='mean')
+X_imputed = imputer.fit_transform(X)
+```
