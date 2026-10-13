@@ -4,8 +4,14 @@ Converts text into dense vector embeddings for FAISS similarity search.
 Model: all-MiniLM-L6-v2 (lightweight, fast, high quality)
 Lazy loads model on demand to keep Django boot instant and prevent OOM/paging issues.
 """
+from __future__ import annotations
+
 import logging
-import numpy as np
+
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 logger = logging.getLogger(__name__)
 
