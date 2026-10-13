@@ -30,11 +30,34 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    email = serializers.CharField()  # Can be email or username
     password = serializers.CharField()
 
     def validate(self, data):
-        user = authenticate(username=data['email'], password=data['password'])
+        ident = data.get('email', '').strip()
+        pwd = data.get('password', '')
+        
+        # 1. Try direct authenticate by email as username
+        user = authenticate(username=ident, password=pwd)
+        
+        # 2. If not found, look up student by email and authenticate with username
+        if not user:
+            try:
+                student = Student.objects.filter(email__iexact=ident).first()
+                if student:
+                    user = authenticate(username=student.username, password=pwd) or authenticate(username=student.email, password=pwd)
+            except Exception:
+                user = None
+
+        # 3. If still not found, check by username
+        if not user:
+            try:
+                student = Student.objects.filter(username__iexact=ident).first()
+                if student:
+                    user = authenticate(username=student.username, password=pwd) or authenticate(username=student.email, password=pwd)
+            except Exception:
+                user = None
+
         if not user:
             raise serializers.ValidationError('Invalid email or password.')
         data['user'] = user
