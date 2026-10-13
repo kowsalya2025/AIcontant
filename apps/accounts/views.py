@@ -12,8 +12,12 @@ from .serializers import (
 )
 
 
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 def register_view(request):
     """Register a new student account."""
     serializer = RegisterSerializer(data=request.data)
@@ -30,6 +34,7 @@ def register_view(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 def login_view(request):
     """Authenticate and return token."""
     serializer = LoginSerializer(data=request.data)
