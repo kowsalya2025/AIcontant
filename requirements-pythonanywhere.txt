@@ -1,0 +1,10 @@
+Django>=4.2,<5.0
+djangorestframework
+django-cors-headers
+python-dotenv
+google-genai
+pypdf
+python-docx
+markdown
+python-jose[cryptography]
+passlib[bcrypt]

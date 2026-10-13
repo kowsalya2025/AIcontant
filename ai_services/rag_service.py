@@ -46,9 +46,6 @@ class RAGService:
                                       Path(settings.BASE_DIR) / 'faiss_index'))
         self.index_dir.mkdir(parents=True, exist_ok=True)
         self._load_index()
-        # Auto-index knowledge_base on startup if index is empty
-        if len(self.texts) == 0:
-            self._index_knowledge_base()
 
     def _index_path(self):
         return self.index_dir / self.INDEX_FILE
@@ -203,6 +200,8 @@ class RAGService:
         Retrieve top-k relevant text chunks for a query.
         Falls back to keyword search if FAISS is unavailable.
         """
+        if not self.texts:
+            self._index_knowledge_base()
         if not self.texts:
             return []
 

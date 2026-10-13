@@ -13,17 +13,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-me-in-production')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+if 'testserver' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('testserver')
+if DEBUG and '*' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('*')
 
-# Auto-allow Railway / Render / Koyeb hostnames
+# Auto-allow Railway / Render / Koyeb / PythonAnywhere hostnames
+if '.pythonanywhere.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.pythonanywhere.com')
+
 for _env_key in ('RENDER_EXTERNAL_HOSTNAME', 'RAILWAY_PUBLIC_DOMAIN', 'KOYEB_PUBLIC_DOMAIN'):
     _host = os.getenv(_env_key)
     if _host:
         ALLOWED_HOSTS.append(_host)
-
-# Hugging Face Spaces (allow direct and iframe-embedded access)
-ALLOWED_HOSTS += ['localhost', '127.0.0.1', '.huggingface.co', '.hf.space']
-X_FRAME_OPTIONS = 'ALLOWALL'
-CSRF_TRUSTED_ORIGINS = ['https://*.huggingface.co', 'https://*.hf.space']
 
 INSTALLED_APPS = [
     'django.contrib.admin',

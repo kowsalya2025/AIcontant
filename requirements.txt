@@ -7,7 +7,7 @@ django-cors-headers==4.4.0
 python-dotenv==1.0.1
 
 # ── PostgreSQL driver ─────────────────────────────────────────────
-psycopg2-binary>=2.9.10  # supports Python 3.13 pre-built wheels
+psycopg2-binary==2.9.10
 
 # ── FastAPI (mounted alongside Django for modern async endpoints) ──
 fastapi==0.115.4
@@ -24,13 +24,20 @@ langchain==0.3.7
 langchain-community==0.3.7
 langchain-google-genai==2.0.4
 
-# ── Document processing (lightweight) ─────────────────────────────
+# ── Embeddings & Vector Stores ────────────────────────────────────
+sentence-transformers==3.3.0
+faiss-cpu==1.9.0.post1.post1
+chromadb==0.5.20        # alternative/additive vector store to FAISS
+
+# ── Document processing ───────────────────────────────────────────
 pypdf==5.1.0
 python-docx==1.1.2
+unstructured==0.16.6
 
-# ── NOTE: Local ML packages removed for lightweight free-tier hosting.
-#    App uses Google Gemini API for all AI features.
-#    (torch, transformers, faiss, chromadb, sentence-transformers)
+# ── Hugging Face Transformers (local inference fallback) ──────────
+transformers==4.46.3
+torch==2.5.1
+accelerate==1.1.1       # faster HuggingFace model loading
 
 # ── Utilities ─────────────────────────────────────────────────────
 Pillow==11.0.0

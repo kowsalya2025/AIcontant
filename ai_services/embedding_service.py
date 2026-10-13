@@ -2,6 +2,7 @@
 Embedding Service — Sentence Transformers (Free, Local)
 Converts text into dense vector embeddings for FAISS similarity search.
 Model: all-MiniLM-L6-v2 (lightweight, fast, high quality)
+Lazy loads model on demand to keep Django boot instant and prevent OOM/paging issues.
 """
 import logging
 import numpy as np
@@ -13,33 +14,41 @@ class EmbeddingService:
     """
     Wraps Sentence Transformers for generating text embeddings.
     Runs fully locally — no API calls, completely free.
+    Lazy loads the underlying model only when embedding is actually invoked.
     """
 
     MODEL_NAME = 'all-MiniLM-L6-v2'
 
     def __init__(self):
         self.model = None
-        self._initialize()
+        self._init_attempted = False
 
-    def _initialize(self):
+    def _get_model(self):
+        if self._init_attempted:
+            return self.model
+
+        self._init_attempted = True
         try:
             from sentence_transformers import SentenceTransformer
             self.model = SentenceTransformer(self.MODEL_NAME)
-            logger.info(f"✅ Embedding model '{self.MODEL_NAME}' loaded.")
+            logger.info(f"SentenceTransformer '{self.MODEL_NAME}' loaded successfully.")
         except ImportError:
             logger.warning("sentence-transformers not installed. Embeddings disabled.")
         except Exception as e:
-            logger.error(f"Failed to load embedding model: {e}")
+            logger.warning(f"Could not load SentenceTransformer locally ({e}). Will use keyword search fallback.")
+            self.model = None
+        return self.model
 
     def embed(self, texts: list[str]) -> np.ndarray | None:
         """
         Embed a list of text strings.
         Returns numpy array of shape (n, embedding_dim).
         """
-        if not self.model or not texts:
+        model = self._get_model()
+        if not model or not texts:
             return None
         try:
-            embeddings = self.model.encode(
+            embeddings = model.encode(
                 texts,
                 convert_to_numpy=True,
                 show_progress_bar=False,
