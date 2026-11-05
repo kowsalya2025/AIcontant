@@ -117,15 +117,15 @@ button { font-family: inherit; cursor: pointer; }
    AUTH PAGE
    ================================================================ */
 .auth-page {
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--grad-hero);
   position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 2.5rem 1.25rem;
+  overflow: hidden;
+  padding: 1rem 1.25rem;
 }
 .auth-page::before {
   content: '';
@@ -157,7 +157,7 @@ button { font-family: inherit; cursor: pointer; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   width: 100%; max-width: 980px;
-  height: 750px;
+  height: min(750px, 94vh);
   max-height: 750px;
   margin: auto;
   border-radius: var(--r-xl);

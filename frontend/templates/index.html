@@ -8,10 +8,24 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=751">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=752">
   <style>
-    .auth-container { height: 750px !important; max-height: 750px !important; overflow: hidden !important; }
-    .auth-hero, .auth-card { height: 100% !important; max-height: 750px !important; overflow: hidden !important; }
+    html, body.auth-page {
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
+      margin: 0 !important;
+    }
+    .auth-container {
+      height: min(750px, 94vh) !important;
+      max-height: 750px !important;
+      overflow: hidden !important;
+    }
+    .auth-hero, .auth-card {
+      height: 100% !important;
+      max-height: 750px !important;
+      overflow: hidden !important;
+    }
   </style>
 </head>
 <body class="auth-page">
