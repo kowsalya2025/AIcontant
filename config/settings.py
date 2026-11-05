@@ -2,7 +2,10 @@
 Django settings for AI Learning Content Generator
 """
 import os
-import dj_database_url
+try:
+    import dj_database_url
+except ImportError:
+    dj_database_url = None
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -86,7 +89,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 _database_url = os.getenv('DATABASE_URL', '')
 _db_engine    = os.getenv('DB_ENGINE', '')
 
-if _database_url:
+if _database_url and dj_database_url:
     DATABASES = {
         'default': dj_database_url.config(
             default=_database_url,
