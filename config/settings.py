@@ -136,7 +136,9 @@ REST_FRAMEWORK = {
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.pythonanywhere.com',
+    'http://*.pythonanywhere.com',
     'https://kowsalya.pythonanywhere.com',
+    'http://kowsalya.pythonanywhere.com',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
