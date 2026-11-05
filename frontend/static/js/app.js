@@ -120,11 +120,14 @@ function switchTab(tab) {
 }
 
 async function handleLogin(event) {
-  event.preventDefault();
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
+  if (event) event.preventDefault();
+  const emailEl = document.getElementById('loginEmail');
+  const passEl = document.getElementById('loginPassword');
   const errEl = document.getElementById('loginError');
   const btn = document.getElementById('loginBtn');
+
+  const email = (emailEl?.value || '').trim();
+  const password = passEl?.value || '';
 
   if (!email) {
     showError(errEl, 'Please enter your email or username.');
@@ -136,7 +139,7 @@ async function handleLogin(event) {
   }
 
   setButtonLoading(btn, true);
-  errEl.classList.add('hidden');
+  if (errEl) errEl.classList.add('hidden');
 
   const res = await API.post('/auth/login/', { email, password });
 
@@ -152,14 +155,21 @@ async function handleLogin(event) {
 }
 
 async function handleRegister(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   const errEl = document.getElementById('registerError');
   const btn = document.getElementById('registerBtn');
 
-  const name = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const password = document.getElementById('regPassword').value;
-  const password2 = document.getElementById('regPassword2').value;
+  const nameEl = document.getElementById('regName');
+  const emailEl = document.getElementById('regEmail');
+  const passEl = document.getElementById('regPassword');
+  const pass2El = document.getElementById('regPassword2');
+  const skillEl = document.getElementById('regSkill');
+
+  const name = (nameEl?.value || '').trim();
+  const email = (emailEl?.value || '').trim();
+  const password = passEl?.value || '';
+  const password2 = pass2El?.value || '';
+  const skill_level = skillEl?.value || 'beginner';
 
   if (!name) {
     showError(errEl, 'Please enter your full name.');
@@ -192,15 +202,15 @@ async function handleRegister(event) {
     full_name: name,
     password,
     password2,
-    skill_level: document.getElementById('regSkill')?.value || 'beginner',
+    skill_level,
   };
   const regStyle = document.getElementById('regStyle');
-  if (regStyle && regStyle.value) {
+  if (regStyle?.value) {
     payload.learning_style = regStyle.value;
   }
 
   setButtonLoading(btn, true);
-  errEl.classList.add('hidden');
+  if (errEl) errEl.classList.add('hidden');
 
   const res = await API.post('/auth/register/', payload);
 
@@ -226,7 +236,7 @@ function setButtonLoading(btn, loading) {
 }
 
 function showError(el, msg) {
-  if (!el) return;
+  if (!el) { alert(msg); return; }
   el.textContent = msg;
   el.classList.remove('hidden');
 }
