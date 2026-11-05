@@ -150,7 +150,56 @@
 </main>
 
 <div class="toast-container" id="toastContainer"></div>
-<script src="{% static 'js/app.js' %}"></script>
-<script src="{% static 'js/quiz.js' %}"></script>
+<script src="{% static 'js/app.js' %}?v=756"></script>
+<script src="{% static 'js/quiz.js' %}?v=756"></script>
+<script>
+async function generateQuiz(event) {
+  if (event) event.preventDefault();
+
+  const subjectEl = document.getElementById('quizSubject');
+  const topicEl = document.getElementById('quizTopic');
+  const subject = (subjectEl?.value || '').trim();
+  let topic = (topicEl?.value || '').trim();
+  const num_questions = parseInt(document.getElementById('numQuestions')?.value || '5');
+  const skill_level = document.querySelector('input[name="quiz_level"]:checked')?.value || 'beginner';
+
+  if (!subject) {
+    alert('Please enter or select a subject.');
+    return;
+  }
+
+  if (!topic) {
+    topic = `${subject} Overview & Fundamentals`;
+  }
+
+  const btn = document.getElementById('startQuizBtn');
+  const btnText = document.getElementById('startQuizBtnText');
+  const btnLoader = document.getElementById('startQuizBtnLoader');
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.classList.add('hidden');
+  if (btnLoader) btnLoader.classList.remove('hidden');
+
+  try {
+    const res = await API.post('/quiz/generate/', {
+      subject, topic, num_questions, skill_level
+    });
+
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.classList.remove('hidden');
+    if (btnLoader) btnLoader.classList.add('hidden');
+
+    if (res.ok) {
+      startQuizSession(res.data.quiz);
+    } else {
+      alert(res.data.error || 'Failed to generate quiz. Please try again.');
+    }
+  } catch (err) {
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.classList.remove('hidden');
+    if (btnLoader) btnLoader.classList.add('hidden');
+    alert('Network error while generating quiz.');
+  }
+}
+</script>
 </body>
 </html>

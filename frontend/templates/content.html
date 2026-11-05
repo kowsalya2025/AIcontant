@@ -130,7 +130,78 @@
 </main>
 
 <div class="toast-container" id="toastContainer"></div>
-<script src="{% static 'js/app.js' %}"></script>
-<script src="{% static 'js/content.js' %}"></script>
+<script src="{% static 'js/app.js' %}?v=756"></script>
+<script src="{% static 'js/content.js' %}?v=756"></script>
+<script>
+// Direct inline handler to override cached static files
+async function generateContent(event) {
+  if (event) event.preventDefault();
+
+  const subjectEl = document.getElementById('subject');
+  const topicEl = document.getElementById('topic');
+  const subject = (subjectEl?.value || '').trim();
+  let topic = (topicEl?.value || '').trim();
+  const skill_level = document.querySelector('input[name="skill_level"]:checked')?.value || 'beginner';
+  const content_type = document.querySelector('input[name="content_type"]:checked')?.value || 'notes';
+  const custom_instructions = (document.getElementById('customInstructions')?.value || '').trim();
+
+  if (!subject) {
+    alert('Please enter or select a subject.');
+    return;
+  }
+
+  // Topic is optional: if omitted, default to comprehensive overview
+  if (!topic) {
+    topic = `${subject} Overview & Fundamentals`;
+  }
+
+  // Show loading state
+  const btn = document.getElementById('generateBtn');
+  const btnText = document.getElementById('generateBtnText');
+  const btnLoader = document.getElementById('generateBtnLoader');
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.classList.add('hidden');
+  if (btnLoader) btnLoader.classList.remove('hidden');
+
+  const placeholder = document.getElementById('contentPlaceholder');
+  const result = document.getElementById('contentResult');
+  if (placeholder) {
+    placeholder.classList.remove('hidden');
+    const h3 = placeholder.querySelector('h3');
+    const p = placeholder.querySelector('p');
+    if (h3) h3.textContent = '🤖 AI is generating your content...';
+    if (p) p.textContent = 'Generating personalized content with Gemini AI...';
+  }
+  if (result) result.classList.add('hidden');
+
+  const payload = { subject, topic, skill_level, content_type };
+  if (custom_instructions) payload.custom_instructions = custom_instructions;
+
+  try {
+    const res = await API.post('/content/generate/', payload);
+
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.classList.remove('hidden');
+    if (btnLoader) btnLoader.classList.add('hidden');
+
+    if (res.ok) {
+      displayContent(res.data.content, res.data.rag_used);
+      if (typeof loadContentHistory === 'function') await loadContentHistory();
+    } else {
+      if (placeholder) {
+        const h3 = placeholder.querySelector('h3');
+        const p = placeholder.querySelector('p');
+        if (h3) h3.textContent = '❌ Generation Failed';
+        if (p) p.textContent = res.data.error || 'Please try again. Make sure your Gemini API key is configured.';
+      }
+    }
+  } catch (err) {
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.classList.remove('hidden');
+    if (btnLoader) btnLoader.classList.add('hidden');
+    alert('Network error while generating content. Please try again.');
+  }
+}
+</script>
 </body>
 </html>
