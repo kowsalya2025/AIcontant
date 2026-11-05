@@ -214,10 +214,12 @@ class RAGService:
                     query_emb = query_emb.reshape(1, -1).astype('float32')
                     distances, indices = self.index.search(query_emb, min(k, len(self.texts)))
                     results = []
-                    for idx in indices[0]:
-                        if 0 <= idx < len(self.texts):
+                    for dist, idx in zip(distances[0], indices[0]):
+                        # Only include relevant chunks with positive cosine similarity >= 0.45
+                        if 0 <= idx < len(self.texts) and dist >= 0.45:
                             results.append(self.texts[idx])
-                    return results
+                    if results:
+                        return results
             except Exception as e:
                 logger.error(f"FAISS search error: {e}")
 

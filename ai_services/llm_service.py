@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class LLMService:
     """
     Abstraction layer for LLM calls.
-    Primary: Google Gemini (gemini-2.5-flash / gemini-1.5-flash)
+    Primary: Google Gemini (gemini-3.5-flash-lite / gemini-3.8-flash / gemini-flash-latest)
     Fallback: Smart context-aware offline generator
     """
 
@@ -66,7 +66,13 @@ class LLMService:
         """
         # Try modern google.genai SDK
         if self.use_new_sdk and self.client:
-            for model_name in ['gemini-2.5-flash', 'gemini-1.5-flash']:
+            for model_name in [
+                'gemini-3.5-flash-lite',
+                'gemini-3.8-flash',
+                'gemini-flash-latest',
+                'gemini-2.5-flash',
+                'gemini-1.5-flash'
+            ]:
                 try:
                     response = self.client.models.generate_content(
                         model=model_name,
