@@ -173,8 +173,8 @@ async function generateQuiz(event) {
   }
 
   const btn = document.getElementById('startQuizBtn');
-  const btnText = document.getElementById('startQuizBtnText');
-  const btnLoader = document.getElementById('startQuizBtnLoader');
+  const btnText = document.getElementById('startBtnText');
+  const btnLoader = document.getElementById('startBtnLoader');
   if (btn) btn.disabled = true;
   if (btnText) btnText.classList.add('hidden');
   if (btnLoader) btnLoader.classList.remove('hidden');
@@ -189,7 +189,13 @@ async function generateQuiz(event) {
     if (btnLoader) btnLoader.classList.add('hidden');
 
     if (res.ok) {
-      startQuizSession(res.data.quiz);
+      currentQuiz = res.data.quiz;
+      selectedAnswers = new Array(currentQuiz.questions.length).fill('');
+      currentQuestion = 0;
+      startQuiz();
+      if (typeof showToast === 'function') {
+        showToast('Quiz ready! ' + currentQuiz.questions.length + ' questions generated.', 'success');
+      }
     } else {
       alert(res.data.error || 'Failed to generate quiz. Please try again.');
     }
@@ -197,7 +203,8 @@ async function generateQuiz(event) {
     if (btn) btn.disabled = false;
     if (btnText) btnText.classList.remove('hidden');
     if (btnLoader) btnLoader.classList.add('hidden');
-    alert('Network error while generating quiz.');
+    console.error('Quiz error:', err);
+    alert('Error generating quiz. Please try again.');
   }
 }
 </script>
