@@ -254,7 +254,7 @@
 
 </div>
 
-<script src="{% static 'js/app.js' %}?v=755"></script>
+<script src="{% static 'js/app.js' %}?v=756"></script>
 <script>
 function switchTab(tab) {
   const lf=document.getElementById('loginForm'),rf=document.getElementById('registerForm');
@@ -268,6 +268,108 @@ function switchTab(tab) {
     lf.classList.add('hidden');rf.classList.remove('hidden');
     lt.classList.remove('active');rt.classList.add('active');
     title.textContent='Join EduAI';sub.textContent='Create your free account and start learning today';
+  }
+}
+
+async function handleLogin(event) {
+  if (event) event.preventDefault();
+  const emailEl = document.getElementById('loginEmail');
+  const passEl = document.getElementById('loginPassword');
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+
+  const email = (emailEl?.value || '').trim();
+  const password = passEl?.value || '';
+
+  if (!email) {
+    showError(errEl, 'Please enter your email or username.');
+    return;
+  }
+  if (!password) {
+    showError(errEl, 'Please enter your password.');
+    return;
+  }
+
+  setButtonLoading(btn, true);
+  if (errEl) errEl.classList.add('hidden');
+
+  const res = await API.post('/auth/login/', { email, password });
+
+  if (res.ok) {
+    Storage.set('token', res.data.token);
+    Storage.set('user', res.data.user);
+    window.location.href = '/dashboard/';
+  } else {
+    const msg = res.data.non_field_errors?.[0] || res.data.error || 'Login failed. Please check your credentials.';
+    showError(errEl, msg);
+    setButtonLoading(btn, false);
+  }
+}
+
+async function handleRegister(event) {
+  if (event) event.preventDefault();
+  const errEl = document.getElementById('registerError');
+  const btn = document.getElementById('registerBtn');
+
+  const nameEl = document.getElementById('regName');
+  const emailEl = document.getElementById('regEmail');
+  const passEl = document.getElementById('regPassword');
+  const pass2El = document.getElementById('regPassword2');
+  const skillEl = document.getElementById('regSkill');
+
+  const name = (nameEl?.value || '').trim();
+  const email = (emailEl?.value || '').trim();
+  const password = passEl?.value || '';
+  const password2 = pass2El?.value || '';
+  const skill_level = skillEl?.value || 'beginner';
+
+  if (!name) {
+    showError(errEl, 'Please enter your full name.');
+    return;
+  }
+  if (!email) {
+    showError(errEl, 'Please enter your email address.');
+    return;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showError(errEl, 'Please enter a complete email address (e.g. name@gmail.com).');
+    return;
+  }
+  if (!password) {
+    showError(errEl, 'Please enter a password.');
+    return;
+  }
+  if (password.length < 8) {
+    showError(errEl, 'Password must be at least 8 characters.');
+    return;
+  }
+  if (password !== password2) {
+    showError(errEl, 'Passwords do not match.');
+    return;
+  }
+
+  const payload = {
+    email,
+    full_name: name,
+    password,
+    password2,
+    skill_level,
+  };
+
+  setButtonLoading(btn, true);
+  if (errEl) errEl.classList.add('hidden');
+
+  const res = await API.post('/auth/register/', payload);
+
+  if (res.ok) {
+    Storage.set('token', res.data.token);
+    Storage.set('user', res.data.user);
+    window.location.href = '/dashboard/';
+  } else {
+    const msgs = Object.values(res.data).flat();
+    showError(errEl, msgs[0] || 'Registration failed.');
+    setButtonLoading(btn, false);
   }
 }
 </script>
