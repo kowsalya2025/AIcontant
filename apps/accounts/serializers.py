@@ -12,7 +12,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = Student
         fields = ['email', 'username', 'full_name', 'password', 'password2',
                   'skill_level', 'learning_style', 'preferred_subjects']
-        extra_kwargs = {'username': {'required': False}}
+        extra_kwargs = {
+            'username': {'required': False},
+            'learning_style': {'required': False},
+        }
 
     def validate(self, data):
         if data['password'] != data['password2']:

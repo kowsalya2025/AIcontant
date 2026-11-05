@@ -19,10 +19,27 @@ const Storage = {
 const API = {
   token: () => Storage.get('token'),
 
+  getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  },
+
   headers() {
     const h = { 'Content-Type': 'application/json' };
     const t = this.token();
     if (t) h['Authorization'] = `Token ${t}`;
+    const csrf = this.getCookie('csrftoken');
+    if (csrf) h['X-CSRFToken'] = csrf;
     return h;
   },
 
@@ -139,13 +156,16 @@ async function handleRegister(event) {
   }
 
   const payload = {
-    email: document.getElementById('regEmail').value,
-    full_name: document.getElementById('regName').value,
+    email: document.getElementById('regEmail').value.trim(),
+    full_name: document.getElementById('regName').value.trim(),
     password,
     password2,
-    skill_level: document.getElementById('regSkill').value,
-    learning_style: document.getElementById('regStyle').value,
+    skill_level: document.getElementById('regSkill')?.value || 'beginner',
   };
+  const regStyle = document.getElementById('regStyle');
+  if (regStyle && regStyle.value) {
+    payload.learning_style = regStyle.value;
+  }
 
   setButtonLoading(btn, true);
   errEl.classList.add('hidden');
