@@ -3,8 +3,8 @@ from .models import GeneratedContent
 
 
 class ContentGenerateSerializer(serializers.Serializer):
-    subject = serializers.CharField(max_length=100)
-    topic = serializers.CharField(max_length=200)
+    subject = serializers.CharField(max_length=150)
+    topic = serializers.CharField(max_length=250, required=False, allow_blank=True, default='')
     skill_level = serializers.ChoiceField(
         choices=['beginner', 'intermediate', 'advanced'],
         required=False

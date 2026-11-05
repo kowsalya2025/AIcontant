@@ -26,11 +26,14 @@ def generate_quiz_view(request):
     data = serializer.validated_data
     student = request.user
     skill_level = data.get('skill_level') or student.skill_level
-    topic = data['topic']
-    subject = data['subject']
+    subject = data['subject'].strip()
+    topic = (data.get('topic') or '').strip()
+    if not topic:
+        topic = f"{subject} Fundamentals"
     num_questions = data.get('num_questions', 5)
 
-    prompt = f"""Generate a {num_questions}-question multiple choice quiz about "{topic}" in {subject}.
+    prompt = f"""Generate a {num_questions}-question multiple choice quiz about "{topic}" in the subject "{subject}".
+If the subject is a language/literature (e.g., Tamil / தமிழ்), formulate authentic questions appropriate for that language and cultural/educational context.
 Skill Level: {skill_level}
 
 Return ONLY a valid JSON array with this exact structure (no markdown, no explanation):

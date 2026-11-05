@@ -24,8 +24,10 @@ def generate_content_view(request):
     data = serializer.validated_data
     student = request.user
     skill_level = data.get('skill_level') or student.skill_level
-    topic = data['topic']
-    subject = data['subject']
+    subject = data['subject'].strip()
+    topic = (data.get('topic') or '').strip()
+    if not topic:
+        topic = f"{subject} Overview & Fundamentals"
     content_type = data.get('content_type', 'notes')
     custom_instructions = data.get('custom_instructions', '')
 
@@ -40,25 +42,27 @@ def generate_content_view(request):
     content_type_prompts = {
         'notes': 'Generate comprehensive, well-structured study notes',
         'explanation': 'Provide a clear, detailed explanation with analogies',
-        'examples': 'Provide multiple practical examples with code/solutions',
+        'examples': 'Provide multiple practical examples with code/solutions where applicable',
         'summary': 'Create a concise, bullet-point summary',
-        'deep_dive': 'Provide an in-depth technical deep dive',
+        'deep_dive': 'Provide an in-depth technical or conceptual deep dive',
     }
     action = content_type_prompts.get(content_type, 'Generate study notes')
 
-    prompt = f"""You are an expert AI tutor. {action} about "{topic}" in {subject}.
+    prompt = f"""You are an expert AI tutor and educator. {action} about "{topic}" in {subject}.
+If the subject or topic is in or relates to Tamil (தமிழ்) or any specific language, literature, or domain, generate authentic, culturally and educationally accurate content appropriate for that field.
 
 Student Profile:
 - Skill Level: {skill_level}
 - Learning Style: {student.learning_style}
 - Subject: {subject}
+- Topic: {topic}
 
 {f"Reference Knowledge Base Context:{chr(10)}{rag_context}{chr(10)}" if rag_context else ""}
 {f"Additional Instructions: {custom_instructions}" if custom_instructions else ""}
 
 Requirements:
 - Tailor the complexity and language to a {skill_level} learner
-- Use markdown formatting (headers, bullets, code blocks where appropriate)
+- Use markdown formatting (headers, bullets, code blocks or quotes where appropriate)
 - Include key concepts, definitions, and practical insights
 - For {student.learning_style} learners: {"use diagrams described in text, visual metaphors" if student.learning_style == "visual" else "include step-by-step processes" if student.learning_style == "kinesthetic" else "provide detailed written explanations"}
 - End with a "Key Takeaways" section

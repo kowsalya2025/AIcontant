@@ -17,13 +17,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function generateContent(event) {
   event.preventDefault();
 
-  const subject = document.getElementById('subject').value;
-  const topic = document.getElementById('topic').value.trim();
+  const subject = document.getElementById('subject').value.trim();
+  let topic = document.getElementById('topic').value.trim();
   const skill_level = document.querySelector('input[name="skill_level"]:checked')?.value || 'beginner';
   const content_type = document.querySelector('input[name="content_type"]:checked')?.value || 'notes';
   const custom_instructions = document.getElementById('customInstructions').value.trim();
 
-  if (!topic) return;
+  if (!subject) {
+    alert('Please enter or select a subject.');
+    return;
+  }
+
+  // Topic is optional: if omitted, default to comprehensive overview
+  if (!topic) {
+    topic = `${subject} Overview & Fundamentals`;
+  }
 
   // Show loading state
   const btn = document.getElementById('generateBtn');

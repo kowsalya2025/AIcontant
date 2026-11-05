@@ -184,24 +184,15 @@ class LLMService:
 
         # 4. Content generation request (Markdown)
         topic_match = re.search(r'about "([^"]+)" in ([^\n.]+)', prompt)
-        topic = topic_match.group(1) if topic_match else "Key Programming Concepts"
-        subject = topic_match.group(2) if topic_match else "Computer Science"
+        topic = topic_match.group(1).strip() if topic_match else "Key Concepts"
+        subject = topic_match.group(2).strip().rstrip('.') if topic_match else "General Education"
 
-        return f"""# 📚 Comprehensive Guide: {topic}
+        # Check if technical/coding subject vs general/humanities/language
+        tech_keywords = ['python', 'code', 'programming', 'software', 'algorithm', 'web', 'database', 'sql', 'backend', 'frontend', 'developer', 'computer']
+        is_tech = any(k in f"{subject} {topic}".lower() for k in tech_keywords)
 
-## 1. Overview & Core Philosophy
-In **{subject}**, mastering **{topic}** represents a fundamental step toward building reliable, performant, and scalable applications. Whether developing distributed systems, data workflows, or interactive user interfaces, {topic} provides the building blocks needed to solve real-world problems.
-
----
-
-## 2. Key Concepts & Architecture
-
-### Foundational Principles
-- **Modularity:** Separating concerns ensures maintainability and simplifies unit testing.
-- **Predictability:** Consistent handling of inputs and edge cases prevents unexpected runtime exceptions.
-- **Resource Efficiency:** Proper memory and computational management ensures high throughput.
-
-```python
+        if is_tech:
+            practical_section = f"""```python
 # Practical implementation example for {topic}
 def execute_task(input_data: list) -> dict:
     \"\"\"
@@ -221,26 +212,50 @@ def execute_task(input_data: list) -> dict:
 # Example execution
 demo_input = ["alpha", "beta", "gamma"]
 print(execute_task(demo_input))
-```
+```"""
+        else:
+            practical_section = f"""> **Practical Context & Core Insight:**  
+> In studying **{subject}**, **{topic}** provides the essential conceptual framework. Analyzing its structure, historical development, and practical modern context helps learners build deep, lasting understanding.
+
+### Practical Application & Analysis
+- **Core Analysis:** Understanding primary themes, structural rules, and critical nuances in **{topic}**.
+- **Contextual Integration:** How **{topic}** connects with broader topics across **{subject}**.
+- **Real-World Relevance:** Daily communication, academic scholarship, and critical analytical thinking."""
+
+        return f"""# 📚 Comprehensive Guide: {topic}
+
+## 1. Overview & Core Philosophy
+In **{subject}**, mastering **{topic}** represents a fundamental step toward building deep conceptual mastery and practical capability. Whether applying it in academic contexts, competitive examinations, or real-world practice, {topic} provides the building blocks needed to excel.
+
+---
+
+## 2. Key Concepts & Principles
+
+### Foundational Principles
+- **Clarity & Structure:** Systematic understanding of core definitions and foundational elements.
+- **Predictability & Rules:** Consistent principles, patterns, and conventions governing {topic}.
+- **Applied Value:** Connecting theoretical knowledge with practical, actionable examples.
+
+{practical_section}
 
 ---
 
 ## 3. Real-World Applications & Workflow
-1. **Data Pipeline Integration:** Transforming inputs into standardized schema representations.
-2. **Business Logic Layer:** Encapsulating domain rules away from transport mechanisms.
-3. **Production Reliability:** Adding logging, timeouts, and fallback policies.
+1. **Foundational Synthesis:** Connecting core principles of {subject} with practical problem-solving.
+2. **Analytical Thinking:** Evaluating real-world examples, texts, or scenarios systematically.
+3. **Mastery & Retention:** Active recall, periodic review, and practical application.
 
 ---
 
 ## 4. Common Pitfalls & How to Avoid Them
-- ❌ **Unchecked Boundary Cases:** Always validate `None`, empty lists, or unexpected network failures.
-- ❌ **Premature Optimization:** Focus first on clean readability and automated test coverage.
-- ✅ **Idiomatic Patterns:** Adhere to established language idioms and clear naming conventions.
+- ❌ **Superficial Memorization:** Focus on understanding underlying principles rather than rote learning.
+- ❌ **Neglecting Core Nuances:** Pay attention to special rules, edge cases, and context-specific usage.
+- ✅ **Active Practice:** Regularly test your understanding through exercises, quizzes, and summaries.
 
 ---
 
 ## 5. Key Takeaways
-- ✅ **{topic}** is integral to high-quality **{subject}** workflows.
-- ✅ Break complex implementations down into small, easily verifiable functions.
-- ✅ Test your understanding by attempting the interactive quiz for this lesson!
+- ✅ **{topic}** is integral to mastering **{subject}**.
+- ✅ Break complex topics down into small, digestible conceptual units.
+- ✅ Test your understanding by taking the interactive quiz for this lesson!
 """

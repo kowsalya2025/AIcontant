@@ -43,19 +43,28 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Subject</label>
-            <select id="quizSubject" class="form-input form-select">
-              <option value="python">🐍 Python Programming</option>
-              <option value="machine_learning">🤖 Machine Learning</option>
-              <option value="data_science">📊 Data Science</option>
-              <option value="mathematics">📐 Mathematics</option>
-              <option value="web_development">🌐 Web Development</option>
-              <option value="algorithms">⚙️ Algorithms</option>
-              <option value="databases">🗄️ Databases</option>
-            </select>
+            <input type="text" id="quizSubject" class="form-input" list="quizSubjectSuggestions" placeholder="Type any subject (e.g., Tamil, Computer Science, Python…)" required autocomplete="off">
+            <datalist id="quizSubjectSuggestions">
+              <option value="Tamil">
+              <option value="Computer Science">
+              <option value="Python Programming">
+              <option value="Machine Learning">
+              <option value="Data Science">
+              <option value="Mathematics">
+              <option value="Web Development">
+              <option value="Algorithms & Data Structures">
+              <option value="Databases & SQL">
+              <option value="Cybersecurity">
+              <option value="Physics">
+              <option value="Chemistry">
+              <option value="Biology">
+              <option value="English Literature">
+              <option value="History">
+            </datalist>
           </div>
           <div class="form-group">
-            <label class="form-label">Topic</label>
-            <input type="text" id="quizTopic" class="form-input" placeholder="e.g., Python functions, Linear regression…" required>
+            <label class="form-label">Topic <span class="optional-tag">optional</span></label>
+            <input type="text" id="quizTopic" class="form-input" placeholder="e.g., Grammar, Functions, Linear regression… (optional)">
           </div>
         </div>
         <div class="form-row">

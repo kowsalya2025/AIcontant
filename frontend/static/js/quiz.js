@@ -21,12 +21,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function generateQuiz(event) {
   event.preventDefault();
 
-  const subject       = document.getElementById('quizSubject').value;
-  const topic         = document.getElementById('quizTopic').value.trim();
+  const subject       = document.getElementById('quizSubject').value.trim();
+  let topic           = document.getElementById('quizTopic').value.trim();
   const skill_level   = document.querySelector('input[name="quiz_level"]:checked')?.value || 'beginner';
   const num_questions = parseInt(document.getElementById('numQuestions').value) || 5;
 
-  if (!topic) return;
+  if (!subject) {
+    alert('Please enter or select a subject.');
+    return;
+  }
+
+  if (!topic) {
+    topic = `${subject} Fundamentals`;
+  }
 
   const btn       = document.getElementById('startQuizBtn');
   const btnText   = document.getElementById('startBtnText');

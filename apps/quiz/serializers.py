@@ -3,8 +3,8 @@ from .models import Quiz, QuizAttempt
 
 
 class QuizGenerateSerializer(serializers.Serializer):
-    subject = serializers.CharField(max_length=100)
-    topic = serializers.CharField(max_length=200)
+    subject = serializers.CharField(max_length=150)
+    topic = serializers.CharField(max_length=200, required=False, allow_blank=True, default='')
     skill_level = serializers.ChoiceField(
         choices=['beginner', 'intermediate', 'advanced'],
         required=False

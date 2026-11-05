@@ -41,21 +41,28 @@
       <form id="contentForm" onsubmit="generateContent(event)">
         <div class="form-group">
           <label class="form-label">Subject</label>
-          <select id="subject" class="form-input form-select">
-            <option value="python">🐍 Python Programming</option>
-            <option value="machine_learning">🤖 Machine Learning</option>
-            <option value="data_science">📊 Data Science</option>
-            <option value="mathematics">📐 Mathematics</option>
-            <option value="web_development">🌐 Web Development</option>
-            <option value="algorithms">⚙️ Algorithms & Data Structures</option>
-            <option value="databases">🗄️ Databases</option>
-            <option value="cybersecurity">🔐 Cybersecurity</option>
-            <option value="networking">🌍 Networking</option>
-          </select>
+          <input type="text" id="subject" class="form-input" list="subjectSuggestions" placeholder="Type any subject (e.g., Tamil, Computer Science, Mathematics…)" required autocomplete="off">
+          <datalist id="subjectSuggestions">
+            <option value="Tamil">
+            <option value="Computer Science">
+            <option value="Python Programming">
+            <option value="Machine Learning">
+            <option value="Data Science">
+            <option value="Mathematics">
+            <option value="Web Development">
+            <option value="Algorithms & Data Structures">
+            <option value="Databases & SQL">
+            <option value="Cybersecurity">
+            <option value="Physics">
+            <option value="Chemistry">
+            <option value="Biology">
+            <option value="English Literature">
+            <option value="History">
+          </datalist>
         </div>
         <div class="form-group">
-          <label class="form-label">Topic</label>
-          <input type="text" id="topic" class="form-input" placeholder="e.g., List comprehensions, Neural networks…" required>
+          <label class="form-label">Topic <span class="optional-tag">optional</span></label>
+          <input type="text" id="topic" class="form-input" placeholder="e.g., Grammar, Sangam Literature, Functions, Architecture… (optional)">
         </div>
         <div class="form-group">
           <label class="form-label">Skill Level</label>
