@@ -121,10 +121,19 @@ function switchTab(tab) {
 
 async function handleLogin(event) {
   event.preventDefault();
-  const email = document.getElementById('loginEmail').value;
+  const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError');
   const btn = document.getElementById('loginBtn');
+
+  if (!email) {
+    showError(errEl, 'Please enter your email or username.');
+    return;
+  }
+  if (!password) {
+    showError(errEl, 'Please enter your password.');
+    return;
+  }
 
   setButtonLoading(btn, true);
   errEl.classList.add('hidden');
@@ -136,7 +145,7 @@ async function handleLogin(event) {
     Storage.set('user', res.data.user);
     window.location.href = '/dashboard/';
   } else {
-    const msg = res.data.non_field_errors?.[0] || res.data.error || 'Login failed.';
+    const msg = res.data.non_field_errors?.[0] || res.data.error || 'Login failed. Please check your credentials.';
     showError(errEl, msg);
     setButtonLoading(btn, false);
   }
@@ -147,17 +156,40 @@ async function handleRegister(event) {
   const errEl = document.getElementById('registerError');
   const btn = document.getElementById('registerBtn');
 
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
   const password = document.getElementById('regPassword').value;
   const password2 = document.getElementById('regPassword2').value;
 
+  if (!name) {
+    showError(errEl, 'Please enter your full name.');
+    return;
+  }
+  if (!email) {
+    showError(errEl, 'Please enter your email address.');
+    return;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showError(errEl, 'Please enter a complete email address (e.g. yourname@gmail.com).');
+    return;
+  }
+  if (!password) {
+    showError(errEl, 'Please enter a password.');
+    return;
+  }
+  if (password.length < 8) {
+    showError(errEl, 'Password must be at least 8 characters.');
+    return;
+  }
   if (password !== password2) {
     showError(errEl, 'Passwords do not match.');
     return;
   }
 
   const payload = {
-    email: document.getElementById('regEmail').value.trim(),
-    full_name: document.getElementById('regName').value.trim(),
+    email,
+    full_name: name,
     password,
     password2,
     skill_level: document.getElementById('regSkill')?.value || 'beginner',
