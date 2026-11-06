@@ -43,7 +43,7 @@ async function generateContent(event) {
 
   document.getElementById('contentPlaceholder').classList.remove('hidden');
   document.getElementById('contentResult').classList.add('hidden');
-  document.getElementById('contentPlaceholder').querySelector('h3').textContent = '🤖 AI is generating your content...';
+  document.getElementById('contentPlaceholder').querySelector('h3').textContent = 'AI is generating your content...';
   document.getElementById('contentPlaceholder').querySelector('p').textContent = 'Retrieving knowledge from RAG database and generating personalized content with Gemini AI...';
 
   const payload = { subject, topic, skill_level, content_type };
@@ -59,7 +59,7 @@ async function generateContent(event) {
     displayContent(res.data.content, res.data.rag_used);
     await loadContentHistory();
   } else {
-    document.getElementById('contentPlaceholder').querySelector('h3').textContent = '❌ Generation Failed';
+    document.getElementById('contentPlaceholder').querySelector('h3').textContent = 'Generation Failed';
     document.getElementById('contentPlaceholder').querySelector('p').textContent =
       res.data.error || 'Please try again. Make sure your Gemini API key is configured.';
   }
@@ -90,8 +90,13 @@ async function bookmarkContent() {
   const btn = document.getElementById('bookmarkBtn');
   const res = await API.post(`/content/${currentContentId}/bookmark/`);
   if (res.ok) {
-    btn.textContent = res.data.bookmarked ? '⭐' : '🔖';
-    btn.title = res.data.bookmarked ? 'Bookmarked!' : 'Bookmark';
+    if (res.data.bookmarked) {
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+      btn.title = 'Bookmarked!';
+    } else {
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;
+      btn.title = 'Bookmark';
+    }
   }
 }
 
@@ -100,8 +105,13 @@ function copyContent() {
   if (!bodyEl) return;
   const text = bodyEl.innerText;
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.btn-icon[onclick="copyContent()"]');
-    if (btn) { btn.textContent = '✅'; setTimeout(() => btn.textContent = '📋', 2000); }
+    const btn = document.getElementById('copyBtn') || document.querySelector('.btn-icon[onclick="copyContent()"]');
+    if (btn) {
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+      setTimeout(() => {
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+      }, 2000);
+    }
   });
 }
 
@@ -127,7 +137,10 @@ async function loadContentHistory() {
 
   container.innerHTML = res.data.contents.map(c => `
     <div class="history-item" onclick="loadHistoryContent(${c.id})">
-      <div class="history-topic">${c.is_bookmarked ? '⭐ ' : ''}${c.topic}</div>
+      <div class="history-topic">
+        ${c.is_bookmarked ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>` : ''}
+        ${c.topic}
+      </div>
       <div class="history-meta">
         <span class="history-badge">${capitalize(c.subject)}</span>
         <span>${capitalize(c.skill_level)}</span>

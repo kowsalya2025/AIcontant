@@ -318,12 +318,14 @@ button { font-family: inherit; cursor: pointer; }
 .level-option, .type-option { cursor: pointer; }
 .level-option input, .type-option input { display: none; }
 .level-btn, .type-btn {
-  display: block; padding: 0.48rem 1.1rem;
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.48rem 1.1rem;
   border-radius: var(--r-full); border: 1.5px solid var(--border);
   font-size: 0.82rem; font-weight: 700; color: var(--t3);
   transition: var(--t); cursor: pointer; white-space: nowrap;
   background: var(--bg-2);
 }
+.level-btn svg, .type-btn svg { flex-shrink: 0; }
 .level-option input:checked + .level-btn,
 .type-option  input:checked + .type-btn {
   border-color: var(--p); background: var(--green-100); color: var(--green-700);
@@ -430,9 +432,10 @@ button { font-family: inherit; cursor: pointer; }
   width: 36px; height: 36px; border-radius: var(--r-sm);
   border: 1.5px solid var(--border); background: var(--bg-2);
   cursor: pointer; transition: var(--t);
-  font-size: 1rem; display: inline-flex; align-items: center; justify-content: center;
+  color: var(--t2); display: inline-flex; align-items: center; justify-content: center;
 }
-.btn-icon:hover { border-color: var(--p); background: var(--green-50); }
+.btn-icon svg { width: 16px; height: 16px; display: block; }
+.btn-icon:hover { border-color: var(--p); background: var(--green-50); color: var(--green-700); }
 
 /* ================================================================
    MESSAGES
@@ -759,10 +762,12 @@ button { font-family: inherit; cursor: pointer; }
 .content-placeholder h3 { font-size: 1.1rem; font-weight: 800; color: var(--t1); }
 .content-placeholder p  { font-size: 0.88rem; color: var(--t3); max-width: 280px; }
 .rag-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
   padding: 0.4rem 1rem; border-radius: var(--r-full);
   font-size: 0.78rem; font-weight: 700;
   background: var(--green-100); border: 1.5px solid var(--green-300); color: var(--green-700);
 }
+.rag-badge svg { flex-shrink: 0; }
 
 .content-meta { padding: 1rem 1.25rem; margin-bottom: 1rem; border-radius: var(--r-md); }
 .content-meta-inner {
@@ -778,10 +783,12 @@ button { font-family: inherit; cursor: pointer; }
   border: 1.5px solid var(--border); color: var(--t3); margin-right: 0.4rem; background: var(--bg-2);
 }
 .rag-active-badge {
-  display: inline-block; padding: 0.3rem 0.85rem; border-radius: var(--r-full);
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.3rem 0.85rem; border-radius: var(--r-full);
   font-size: 0.75rem; font-weight: 700;
   background: var(--green-100); border: 1.5px solid var(--green-300); color: var(--green-700);
 }
+.rag-active-badge svg { flex-shrink: 0; }
 .content-actions { display: flex; align-items: center; gap: 0.5rem; }
 .content-body { padding: 2rem 2.25rem; }
 

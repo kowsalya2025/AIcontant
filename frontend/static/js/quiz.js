@@ -72,7 +72,9 @@ function startQuiz() {
     const m = Math.floor(elapsed / 60);
     const s = elapsed % 60;
     const timerEl = document.getElementById('quizTimer');
-    if (timerEl) timerEl.textContent = `⏱ ${m}:${s.toString().padStart(2,'0')}`;
+    if (timerEl) {
+      timerEl.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${m}:${s.toString().padStart(2,'0')}`;
+    }
   }, 1000);
 
   renderQuestion();
@@ -102,10 +104,10 @@ function renderQuestion() {
   document.getElementById('prevBtn').disabled = currentQuestion === 0;
   const nextBtn = document.getElementById('nextBtn');
   if (currentQuestion === total - 1) {
-    nextBtn.textContent = '✅ Submit Quiz';
+    nextBtn.innerHTML = `<span>Submit Quiz</span>`;
     nextBtn.onclick = submitQuiz;
   } else {
-    nextBtn.textContent = 'Next →';
+    nextBtn.innerHTML = `<span>Next</span> <span style="font-size:1.1em">&rarr;</span>`;
     nextBtn.onclick = nextQuestion;
   }
 }
@@ -180,7 +182,7 @@ function showResults(data) {
   document.getElementById('timeTaken').textContent    = timeStr;
   document.getElementById('pointsEarned').textContent = `+${data.points_earned}`;
 
-  const titles = score >= 90 ? '🏆 Excellent Work!' : score >= 70 ? '🎉 Great Job!' : score >= 50 ? '👍 Good Effort!' : '💪 Keep Going!';
+  const titles = score >= 90 ? 'Excellent Work!' : score >= 70 ? 'Great Job!' : score >= 50 ? 'Good Effort!' : 'Keep Going!';
   document.getElementById('resultsTitle').textContent    = titles;
   document.getElementById('resultsSubtitle').textContent = `You got ${correct} out of ${total} correct.`;
 
@@ -188,7 +190,7 @@ function showResults(data) {
   const feedbackEl = document.getElementById('aiFeedback');
   if (attempt.feedback) {
     feedbackEl.style.display = 'block';
-    feedbackEl.innerHTML = `<strong>🤖 AI Feedback:</strong><br>${attempt.feedback}`;
+    feedbackEl.innerHTML = `<strong style="display:inline-flex;align-items:center;gap:6px;margin-bottom:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> AI Feedback:</strong><br>${attempt.feedback}`;
   }
 
   // Answer review
@@ -198,9 +200,9 @@ function showResults(data) {
       <div class="answer-q">${i + 1}. ${a.question}</div>
       <div class="answer-detail">
         Your answer: <span class="${a.is_correct ? 'answer-correct' : 'answer-wrong'}">${a.your_answer || '(skipped)'}</span>
-        ${!a.is_correct ? ` · Correct: <span class="answer-correct">${a.correct_answer}</span>` : ' ✅'}
+        ${!a.is_correct ? ` · Correct: <span class="answer-correct">${a.correct_answer}</span>` : ' <span style="color:var(--emerald);font-weight:700">✓ Correct</span>'}
       </div>
-      ${a.explanation ? `<div class="answer-detail" style="margin-top:.3rem;font-style:italic;color:var(--t3)">💡 ${a.explanation}</div>` : ''}
+      ${a.explanation ? `<div class="answer-detail" style="margin-top:.3rem;color:var(--t3)"><strong style="color:var(--green-700)">Explanation:</strong> ${a.explanation}</div>` : ''}
     </div>
   `).join('');
 
@@ -226,7 +228,7 @@ async function loadQuizHistory() {
 
   const res = await API.get('/quiz/history/');
   if (!res.ok || !res.data.attempts?.length) {
-    container.innerHTML = '<div class="empty-state"><span class="empty-icon">📝</span><p>No quizzes taken yet. Generate your first quiz!</p></div>';
+    container.innerHTML = '<div class="empty-state"><span class="empty-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><p>No quizzes taken yet. Generate your first quiz!</p></div>';
     return;
   }
 
