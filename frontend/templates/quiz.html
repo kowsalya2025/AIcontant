@@ -6,7 +6,25 @@
   <title>AI Quiz — EduAI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=802">
+  <style>
+    .level-btn, .type-btn {
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 0.45rem !important;
+    }
+    .level-btn svg, .type-btn svg {
+      flex-shrink: 0 !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
+    }
+    .level-btn span, .type-btn span {
+      display: inline-block !important;
+      line-height: 1 !important;
+    }
+  </style>
 </head>
 <body class="app-page">
 
