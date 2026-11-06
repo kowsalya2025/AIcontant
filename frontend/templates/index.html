@@ -8,59 +8,64 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=803">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=804">
   <style>
     html, body.auth-page {
-      min-height: 100vh !important;
-      height: auto !important;
-      max-height: none !important;
-      overflow-x: hidden !important;
-      overflow-y: auto !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
       margin: 0 !important;
-      padding: 2.5rem 1rem !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      box-sizing: border-box !important;
+      padding: 0 !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
     }
     .auth-container {
-      height: auto !important;
-      min-height: auto !important;
-      max-height: none !important;
-      overflow: visible !important;
-      margin: auto !important;
-      border-radius: var(--r-xl) !important;
+      height: min(750px, 94vh) !important;
+      max-height: 750px !important;
+      overflow: hidden !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
     }
     .auth-hero {
-      height: auto !important;
-      min-height: 100% !important;
-      max-height: none !important;
-      padding: 2.25rem 2.25rem 2.5rem 2.25rem !important;
+      height: 100% !important;
+      max-height: 750px !important;
+      padding: 1.5rem 2rem 2.5rem 2rem !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: flex-start !important;
-      gap: 0.75rem !important;
-      overflow: visible !important;
+      gap: 0.5rem !important;
+      overflow: hidden !important;
     }
-    .auth-hero .logo-mark { margin-bottom: 0.5rem !important; }
-    .auth-hero .logo-icon { width: 40px !important; height: 40px !important; }
-    .auth-hero .brand-name { font-size: 1.7rem !important; }
-    .auth-hero .brand-tagline { font-size: 1.25rem !important; margin-bottom: 0.35rem !important; }
-    .auth-hero .brand-desc { font-size: 0.85rem !important; line-height: 1.5 !important; margin-bottom: 0.45rem !important; }
-    .auth-hero .feature-list { gap: 0.45rem !important; }
-    .auth-hero .feature-item { padding: 0.55rem 0.85rem !important; gap: 0.75rem !important; }
-    .auth-hero .feat-icon { width: 32px !important; height: 32px !important; }
-    .auth-hero .feat-icon svg { width: 17px !important; height: 17px !important; }
-    .auth-hero .feat-title { font-size: 0.84rem !important; }
-    .auth-hero .feat-sub { font-size: 0.73rem !important; }
-    .auth-hero .tech-badges { margin-top: 0.6rem !important; gap: 0.35rem !important; }
-    .auth-hero .tech-badge { font-size: 0.68rem !important; padding: 0.18rem 0.55rem !important; }
+    .auth-hero .logo-mark { margin-bottom: 0.35rem !important; }
+    .auth-hero .logo-icon { width: 38px !important; height: 38px !important; font-size: 1.2rem !important; }
+    .auth-hero .brand-name { font-size: 1.65rem !important; }
+    .auth-hero .brand-tagline { font-size: 1.2rem !important; margin-bottom: 0.25rem !important; }
+    .auth-hero .brand-desc { font-size: 0.8rem !important; line-height: 1.45 !important; margin-bottom: 0.35rem !important; }
+    .auth-hero .feature-list { gap: 0.35rem !important; }
+    .auth-hero .feature-item { padding: 0.42rem 0.75rem !important; gap: 0.65rem !important; }
+    .auth-hero .feat-icon { width: 30px !important; height: 30px !important; }
+    .auth-hero .feat-icon svg { width: 16px !important; height: 16px !important; }
+    .auth-hero .feat-title { font-size: 0.8rem !important; }
+    .auth-hero .feat-sub { font-size: 0.7rem !important; }
+    .auth-hero .tech-badges { margin-top: 0.35rem !important; gap: 0.3rem !important; }
+    .auth-hero .tech-badge { font-size: 0.65rem !important; padding: 0.15rem 0.5rem !important; }
     .auth-card {
-      height: auto !important;
-      min-height: 100% !important;
-      max-height: none !important;
-      overflow: visible !important;
-      padding: 2.25rem 2.5rem !important;
+      height: 100% !important;
+      max-height: 750px !important;
+      overflow-y: auto !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    /* Completely remove any visible scrollbars anywhere on the auth page */
+    html::-webkit-scrollbar,
+    body.auth-page::-webkit-scrollbar,
+    .auth-container::-webkit-scrollbar,
+    .auth-hero::-webkit-scrollbar,
+    .auth-card::-webkit-scrollbar,
+    .auth-form::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
   </style>
 </head>
