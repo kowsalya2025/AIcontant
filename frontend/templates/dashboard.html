@@ -63,6 +63,7 @@
       <span>Profile</span>
     </a>
   </nav>
+  <div id="adminNavSection" style="display:none">
   <div class="sidebar-section-label">System</div>
   <nav class="sidebar-nav" style="flex:0">
     <a href="/admin/" target="_blank" class="nav-item">
@@ -75,6 +76,7 @@
       <span>Admin Panel</span>
     </a>
   </nav>
+  </div>
   <div class="sidebar-footer">
     <button class="nav-item logout-btn" onclick="logout()">
       <span class="nav-icon">
@@ -314,7 +316,7 @@
 </main>
 
 <div class="toast-container" id="toastContainer"></div>
-<script src="{% static 'js/app.js' %}"></script>
-<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="{% static 'js/app.js' %}?v=757"></script>
+<script src="{% static 'js/dashboard.js' %}?v=757"></script>
 </body>
 </html>

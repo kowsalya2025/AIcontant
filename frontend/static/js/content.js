@@ -59,9 +59,12 @@ async function generateContent(event) {
     displayContent(res.data.content, res.data.rag_used);
     await loadContentHistory();
   } else {
-    document.getElementById('contentPlaceholder').querySelector('h3').textContent = 'Generation Failed';
-    document.getElementById('contentPlaceholder').querySelector('p').textContent =
-      res.data.error || 'Please try again. Make sure your Gemini API key is configured.';
+    const errMsg = res.data.error || 'Please try again. Make sure your Gemini API key is configured.';
+    document.getElementById('contentPlaceholder').querySelector('h3').textContent = '❌ Generation Failed';
+    document.getElementById('contentPlaceholder').querySelector('p').textContent = errMsg;
+    if (typeof showToast === 'function') {
+      showToast(errMsg, 'error', 5000);
+    }
   }
 }
 

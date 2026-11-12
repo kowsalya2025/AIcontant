@@ -72,11 +72,11 @@ class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        fields = ['id', 'email', 'username', 'full_name', 'display_name',
+        fields = ['id', 'email', 'username', 'full_name', 'display_name', 'is_staff', 'is_superuser',
                   'skill_level', 'learning_style', 'preferred_subjects',
                   'daily_goal_minutes', 'total_points', 'current_streak',
                   'longest_streak', 'created_at']
-        read_only_fields = ['id', 'email', 'total_points', 'current_streak',
+        read_only_fields = ['id', 'email', 'is_staff', 'is_superuser', 'total_points', 'current_streak',
                             'longest_streak', 'created_at']
 
 

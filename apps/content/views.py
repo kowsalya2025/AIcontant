@@ -7,6 +7,11 @@ from .models import GeneratedContent
 from .serializers import ContentGenerateSerializer, GeneratedContentSerializer
 from ai_services.rag_service import RAGService
 from ai_services.llm_service import LLMService
+from ai_services.validators import (
+    validate_subject_topic_relevance,
+    build_language_and_domain_rules,
+    is_coding_subject,
+)
 
 
 rag_service = RAGService()
@@ -31,25 +36,49 @@ def generate_content_view(request):
     content_type = data.get('content_type', 'notes')
     custom_instructions = data.get('custom_instructions', '')
 
+    # Step 0: Validate that topic is relevant to the selected subject
+    is_valid_topic, validation_error = validate_subject_topic_relevance(
+        subject, topic, llm_service=llm_service
+    )
+    if not is_valid_topic:
+        return Response(
+            {'error': validation_error},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
     # Step 1: RAG retrieval — find relevant knowledge base chunks
     retrieved_chunks = rag_service.retrieve(
         query=f"{subject} {topic}",
-        k=4
+        k=4,
+        subject=subject,
     )
     rag_context = "\n\n".join(retrieved_chunks) if retrieved_chunks else ""
 
     # Step 2: Build prompt
+    coding_mode = is_coding_subject(subject, topic)
+    examples_prompt = (
+        'Provide multiple practical programming examples with well-commented code and outputs'
+        if coding_mode else
+        'Provide multiple authentic, illustrative examples tailored strictly to this subject (such as classical literary lines/verses, historical figures/events, cultural context, or real-world cases — NO programming code)'
+    )
     content_type_prompts = {
         'notes': 'Generate comprehensive, well-structured study notes',
-        'explanation': 'Provide a clear, detailed explanation with analogies',
-        'examples': 'Provide multiple practical examples with code/solutions where applicable',
+        'explanation': 'Provide a clear, detailed explanation with relatable domain analogies',
+        'examples': examples_prompt,
         'summary': 'Create a concise, bullet-point summary',
-        'deep_dive': 'Provide an in-depth technical or conceptual deep dive',
+        'deep_dive': 'Provide an in-depth conceptual and analytical deep dive',
     }
     action = content_type_prompts.get(content_type, 'Generate study notes')
+    language_domain_rules = build_language_and_domain_rules(
+        subject=subject,
+        topic=topic,
+        custom_instructions=custom_instructions,
+        is_quiz=False,
+    )
 
     prompt = f"""You are an expert AI tutor and educator. {action} about "{topic}" in {subject}.
-If the subject or topic is in or relates to Tamil (தமிழ்) or any specific language, literature, or domain, generate authentic, culturally and educationally accurate content appropriate for that field.
+
+{language_domain_rules}
 
 Student Profile:
 - Skill Level: {skill_level}
@@ -61,16 +90,16 @@ Student Profile:
 {f"Additional Instructions: {custom_instructions}" if custom_instructions else ""}
 
 Requirements:
-- Tailor the complexity and language to a {skill_level} learner
-- Use markdown formatting (headers, bullets, code blocks or quotes where appropriate)
-- Include key concepts, definitions, and practical insights
-- For {student.learning_style} learners: {"use diagrams described in text, visual metaphors" if student.learning_style == "visual" else "include step-by-step processes" if student.learning_style == "kinesthetic" else "provide detailed written explanations"}
+- Tailor the complexity and depth to a {skill_level} learner
+- Use clean markdown formatting (headers, bullet lists, blockquotes{", code blocks" if coding_mode else ""})
+- Include key concepts, definitions, authentic illustrative examples, and scholarly insights
+- For {student.learning_style} learners: {"use visual metaphors and structured text diagrams" if student.learning_style == "visual" else "include step-by-step analysis and practical applications" if student.learning_style == "kinesthetic" else "provide detailed written explanations"}
 - End with a "Key Takeaways" section
 
 Generate the content now:"""
 
-    # Step 3: LLM generation
-    generated_text = llm_service.generate(prompt)
+    # Step 3: LLM generation (low temperature for language/output consistency)
+    generated_text = llm_service.generate(prompt, temperature=0.2)
 
     if not generated_text:
         return Response(

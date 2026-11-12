@@ -972,13 +972,14 @@ button { font-family: inherit; cursor: pointer; }
 .quiz-history-item {
   display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1rem;
   border: 1.5px solid var(--border); border-radius: var(--r-md); margin-bottom: 0.5rem;
-  transition: var(--t); background: var(--bg-2);
+  transition: var(--t); background: var(--bg-2); cursor: pointer;
 }
 .quiz-history-item:hover { border-color: var(--border-h); background: var(--green-50); }
 .qh-score { font-size: 1.25rem; font-weight: 900; min-width: 62px; }
 .qh-info  { flex: 1; }
 .qh-topic { font-weight: 700; font-size: 0.88rem; color: var(--t1); }
 .qh-meta  { font-size: 0.74rem; color: var(--t4); }
+.qh-review { font-size: 0.78rem; font-weight: 700; color: var(--green-600); white-space: nowrap; }
 
 /* ================================================================
    PROFILE PAGE

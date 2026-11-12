@@ -5,4 +5,5 @@ urlpatterns = [
     path('generate/', views.generate_quiz_view, name='generate-quiz'),
     path('submit/', views.submit_quiz_view, name='submit-quiz'),
     path('history/', views.quiz_history_view, name='quiz-history'),
+    path('history/<int:pk>/', views.quiz_attempt_detail_view, name='quiz-attempt-detail'),
 ]

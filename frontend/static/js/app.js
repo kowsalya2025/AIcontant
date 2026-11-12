@@ -297,12 +297,38 @@ function showToast(msg, type = 'info', duration = 3500) {
   }, duration);
 }
 
+// ---- Role-based Admin Nav Visibility ----
+function syncAdminNav(user) {
+  const adminSection = document.getElementById('adminNavSection');
+  if (!adminSection) return;
+  const isAdmin = Boolean(user && (user.is_staff || user.is_superuser));
+  adminSection.style.display = isAdmin ? '' : 'none';
+}
+
+async function refreshAdminNavFromServer() {
+  const adminSection = document.getElementById('adminNavSection');
+  if (!adminSection || !Storage.get('token')) return;
+  try {
+    const res = await API.get('/auth/profile/');
+    if (res.ok && res.data) {
+      const userData = res.data.student || res.data;
+      Storage.set('user', userData);
+      syncAdminNav(userData);
+    }
+  } catch (e) {
+    // Keep existing visibility (hidden by default for safety)
+  }
+}
+
 // ---- Init ----
 document.addEventListener('DOMContentLoaded', () => {
   const path = window.location.pathname;
   if (path === '/' || path === '') {
     redirectIfLoggedIn();
   } else if (path !== '/') {
-    requireAuth();
+    if (requireAuth()) {
+      syncAdminNav(Storage.get('user'));
+      refreshAdminNavFromServer();
+    }
   }
 });

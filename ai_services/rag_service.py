@@ -195,10 +195,17 @@ class RAGService:
             self.texts.extend(chunks)
             return len(chunks)
 
-    def retrieve(self, query: str, k: int = 4) -> list[str]:
+    RAG_STOPWORDS = {
+        'the', 'and', 'for', 'with', 'from', 'this', 'that', 'into', 'about',
+        'overview', 'fundamentals', 'introduction', 'basics', 'advanced',
+        'intermediate', 'beginner', 'examples', 'notes', 'summary', 'deep',
+        'dive', 'age', 'history', 'guide', 'topic', 'subject', 'explain',
+    }
+
+    def retrieve(self, query: str, k: int = 4, subject: str = '') -> list[str]:
         """
         Retrieve top-k relevant text chunks for a query.
-        Falls back to keyword search if FAISS is unavailable.
+        Falls back to filtered keyword search if FAISS is unavailable.
         """
         if not self.texts:
             self._index_knowledge_base()
@@ -215,21 +222,38 @@ class RAGService:
                     distances, indices = self.index.search(query_emb, min(k, len(self.texts)))
                     results = []
                     for dist, idx in zip(distances[0], indices[0]):
-                        # Only include relevant chunks with positive cosine similarity >= 0.45
-                        if 0 <= idx < len(self.texts) and dist >= 0.45:
+                        # Only include relevant chunks with strong cosine similarity >= 0.50
+                        if 0 <= idx < len(self.texts) and dist >= 0.50:
                             results.append(self.texts[idx])
                     if results:
                         return results
             except Exception as e:
                 logger.error(f"FAISS search error: {e}")
 
-        # Keyword fallback
-        query_words = set(query.lower().split())
+        # Keyword fallback (filtered against stopwords & unrelated domains)
+        import re
+        raw_words = re.findall(r'[a-zA-Z0-9\u0B80-\u0BFF]{3,}', query.lower())
+        query_words = {w for w in raw_words if w not in self.RAG_STOPWORDS}
+        if not query_words:
+            return []
+
+        subj_words = set()
+        if subject:
+            subj_words = {
+                w for w in re.findall(r'[a-zA-Z0-9\u0B80-\u0BFF]{3,}', subject.lower())
+                if w not in self.RAG_STOPWORDS
+            }
+
+        min_score = 2 if len(query_words) >= 2 else 1
         scored = []
         for chunk in self.texts:
-            chunk_words = set(chunk.lower().split())
-            score = len(query_words & chunk_words)
-            if score > 0:
+            chunk_words = set(re.findall(r'[a-zA-Z0-9\u0B80-\u0BFF]{3,}', chunk.lower()))
+            overlap = query_words & chunk_words
+            score = len(overlap)
+            # Prevent unrelated subjects (e.g., Tamil) from matching generic words in CS/ML docs
+            if subj_words and not (subj_words & chunk_words) and score < 2:
+                continue
+            if score >= min_score:
                 scored.append((score, chunk))
         scored.sort(reverse=True, key=lambda x: x[0])
         return [c for _, c in scored[:k]]

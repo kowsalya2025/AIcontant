@@ -89,6 +89,7 @@
       <span>Profile</span>
     </a>
   </nav>
+  <div id="adminNavSection" style="display:none">
   <div class="sidebar-section-label">System</div>
   <nav class="sidebar-nav" style="flex:0">
     <a href="/admin/" target="_blank" class="nav-item">
@@ -101,6 +102,7 @@
       <span>Admin Panel</span>
     </a>
   </nav>
+  </div>
   <div class="sidebar-footer">
     <button class="nav-item logout-btn" onclick="logout()">
       <span class="nav-icon">
@@ -311,8 +313,8 @@
 </main>
 
 <div class="toast-container" id="toastContainer"></div>
-<script src="{% static 'js/app.js' %}?v=756"></script>
-<script src="{% static 'js/content.js' %}?v=756"></script>
+<script src="{% static 'js/app.js' %}?v=757"></script>
+<script src="{% static 'js/content.js' %}?v=757"></script>
 <script>
 // Direct inline handler to override cached static files
 async function generateContent(event) {
@@ -369,12 +371,14 @@ async function generateContent(event) {
       displayContent(res.data.content, res.data.rag_used);
       if (typeof loadContentHistory === 'function') await loadContentHistory();
     } else {
+      const errMsg = res.data.error || 'Please try again. Make sure your Gemini API key is configured.';
       if (placeholder) {
         const h3 = placeholder.querySelector('h3');
         const p = placeholder.querySelector('p');
         if (h3) h3.textContent = '❌ Generation Failed';
-        if (p) p.textContent = res.data.error || 'Please try again. Make sure your Gemini API key is configured.';
+        if (p) p.textContent = errMsg;
       }
+      if (typeof showToast === 'function') showToast(errMsg, 'error', 5000);
     }
   } catch (err) {
     if (btn) btn.disabled = false;

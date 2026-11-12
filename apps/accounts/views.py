@@ -90,6 +90,8 @@ def dashboard_stats_view(request):
         lp = student.learning_profile
         stats = {
             'display_name': student.display_name,
+            'is_staff': student.is_staff,
+            'is_superuser': student.is_superuser,
             'total_points': student.total_points,
             'current_streak': student.current_streak,
             'longest_streak': student.longest_streak,
@@ -106,6 +108,8 @@ def dashboard_stats_view(request):
     except Exception:
         stats = {
             'display_name': student.display_name,
+            'is_staff': student.is_staff,
+            'is_superuser': student.is_superuser,
             'total_points': 0, 'current_streak': 0,
             'longest_streak': 0, 'skill_level': student.skill_level,
             'learning_style': student.learning_style,

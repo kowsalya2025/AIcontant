@@ -5,6 +5,7 @@ let currentQuestion = 0;
 let selectedAnswers = [];
 let timerInterval   = null;
 let quizStartTime   = null;
+let isSubmittingQuiz = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!requireAuth()) return;
@@ -55,12 +56,13 @@ async function generateQuiz(event) {
     startQuiz();
     showToast(`Quiz ready! ${currentQuiz.questions.length} questions generated.`, 'success');
   } else {
-    showToast(res.data.error || 'Failed to generate quiz. Please try again.', 'error');
+    showToast(res.data.error || 'Failed to generate quiz. Please try again.', 'error', 5000);
   }
 }
 
 /* ─────────────────────── Quiz flow ─────────────────────── */
 function startQuiz() {
+  isSubmittingQuiz = false;
   document.getElementById('quizSetup').classList.add('hidden');
   document.getElementById('activeQuiz').classList.remove('hidden');
   document.getElementById('quizResults').classList.add('hidden');
@@ -134,30 +136,59 @@ function prevQuestion() {
 
 /* ─────────────────────── Submit ─────────────────────── */
 async function submitQuiz() {
-  clearInterval(timerInterval);
-  const timeTaken  = Math.floor((Date.now() - quizStartTime) / 1000);
-  const unanswered = selectedAnswers.filter(a => !a).length;
+  if (isSubmittingQuiz || !currentQuiz) return;
 
+  const unanswered = selectedAnswers.filter(a => !a).length;
   if (unanswered > 0) {
     if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
   }
 
-  const res = await API.post('/quiz/submit/', {
-    quiz_id: currentQuiz.id,
-    answers: selectedAnswers,
-    time_taken_seconds: timeTaken
-  });
+  isSubmittingQuiz = true;
+  clearInterval(timerInterval);
+  const timeTaken = Math.floor((Date.now() - quizStartTime) / 1000);
 
-  if (res.ok) {
-    showResults(res.data);
-    await loadQuizHistory();
-  } else {
-    showToast(res.data.error || 'Failed to submit quiz.', 'error');
+  const nextBtn = document.getElementById('nextBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  if (nextBtn) {
+    nextBtn.disabled = true;
+    nextBtn.innerHTML = '<span>Submitting...</span>';
+  }
+  if (prevBtn) prevBtn.disabled = true;
+
+  try {
+    const res = await API.post('/quiz/submit/', {
+      quiz_id: currentQuiz.id,
+      answers: selectedAnswers,
+      time_taken_seconds: timeTaken
+    });
+
+    if (res.ok) {
+      showResults(res.data);
+      await loadQuizHistory();
+    } else {
+      showToast(res.data.error || 'Failed to submit quiz.', 'error');
+      if (nextBtn) {
+        nextBtn.disabled = false;
+        nextBtn.innerHTML = '<span>Submit Quiz</span>';
+      }
+      if (prevBtn) prevBtn.disabled = currentQuestion === 0;
+      isSubmittingQuiz = false;
+    }
+  } catch (err) {
+    showToast('Network error while submitting quiz. Please try again.', 'error');
+    if (nextBtn) {
+      nextBtn.disabled = false;
+      nextBtn.innerHTML = '<span>Submit Quiz</span>';
+    }
+    if (prevBtn) prevBtn.disabled = currentQuestion === 0;
+    isSubmittingQuiz = false;
   }
 }
 
 /* ─────────────────────── Results ─────────────────────── */
-function showResults(data) {
+function showResults(data, options = {}) {
+  const isReview = Boolean(options.isReview);
+  document.getElementById('quizSetup').classList.add('hidden');
   document.getElementById('activeQuiz').classList.add('hidden');
   document.getElementById('quizResults').classList.remove('hidden');
 
@@ -166,8 +197,9 @@ function showResults(data) {
   const correct  = attempt.correct_count;
   const total    = attempt.total_questions;
   const wrong    = total - correct;
-  const timeSec  = attempt.time_taken_seconds;
+  const timeSec  = attempt.time_taken_seconds || 0;
   const timeStr  = timeSec >= 60 ? `${Math.floor(timeSec/60)}m ${timeSec%60}s` : `${timeSec}s`;
+  const pointsEarned = data.points_earned ?? (Math.floor(attempt.score / 10) * 5);
 
   // Animated score ring
   const ring = document.getElementById('scoreRing');
@@ -180,22 +212,26 @@ function showResults(data) {
   document.getElementById('correctCount').textContent = correct;
   document.getElementById('wrongCount').textContent   = wrong;
   document.getElementById('timeTaken').textContent    = timeStr;
-  document.getElementById('pointsEarned').textContent = `+${data.points_earned}`;
+  document.getElementById('pointsEarned').textContent = `+${pointsEarned}`;
 
   const titles = score >= 90 ? 'Excellent Work!' : score >= 70 ? 'Great Job!' : score >= 50 ? 'Good Effort!' : 'Keep Going!';
-  document.getElementById('resultsTitle').textContent    = titles;
-  document.getElementById('resultsSubtitle').textContent = `You got ${correct} out of ${total} correct.`;
+  document.getElementById('resultsTitle').textContent    = isReview ? `Quiz Review: ${attempt.quiz_topic}` : titles;
+  document.getElementById('resultsSubtitle').textContent = isReview
+    ? `${capitalize(attempt.quiz_subject)} · You scored ${correct} out of ${total} (${new Date(attempt.completed_at).toLocaleDateString()})`
+    : `You got ${correct} out of ${total} correct.`;
 
   // AI Feedback
   const feedbackEl = document.getElementById('aiFeedback');
   if (attempt.feedback) {
     feedbackEl.style.display = 'block';
     feedbackEl.innerHTML = `<strong style="display:inline-flex;align-items:center;gap:6px;margin-bottom:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> AI Feedback:</strong><br>${attempt.feedback}`;
+  } else {
+    feedbackEl.style.display = 'none';
   }
 
   // Answer review
   const reviewEl = document.getElementById('answersReview');
-  reviewEl.innerHTML = attempt.correct_answers.map((a, i) => `
+  reviewEl.innerHTML = (attempt.correct_answers || []).map((a, i) => `
     <div class="answer-item ${a.is_correct ? 'correct' : 'wrong'}">
       <div class="answer-q">${i + 1}. ${a.question}</div>
       <div class="answer-detail">
@@ -206,14 +242,18 @@ function showResults(data) {
     </div>
   `).join('');
 
-  showToast(`Quiz submitted! You scored ${score}%`, score >= 60 ? 'success' : 'info');
+  if (!isReview) {
+    showToast(`Quiz submitted! You scored ${score}%`, score >= 60 ? 'success' : 'info');
+  }
 }
 
 /* ─────────────────────── Reset ─────────────────────── */
 function resetQuiz() {
-  currentQuiz     = null;
-  selectedAnswers = [];
-  currentQuestion = 0;
+  currentQuiz      = null;
+  selectedAnswers  = [];
+  currentQuestion  = 0;
+  isSubmittingQuiz = false;
+  clearInterval(timerInterval);
   document.getElementById('quizSetup').classList.remove('hidden');
   document.getElementById('activeQuiz').classList.add('hidden');
   document.getElementById('quizResults').classList.add('hidden');
@@ -235,14 +275,25 @@ async function loadQuizHistory() {
   container.innerHTML = res.data.attempts.slice(0, 8).map(a => {
     const color = a.score >= 80 ? '#10b981' : a.score >= 60 ? '#f59e0b' : '#f43f5e';
     return `
-      <div class="quiz-history-item">
+      <div class="quiz-history-item" role="button" tabindex="0" onclick="viewQuizAttempt(${a.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();viewQuizAttempt(${a.id});}">
         <div class="qh-score" style="color:${color}">${Math.round(a.score)}%</div>
         <div class="qh-info">
           <div class="qh-topic">${a.quiz_topic}</div>
           <div class="qh-meta">${capitalize(a.quiz_subject)} · ${a.correct_count}/${a.total_questions} correct · ${new Date(a.completed_at).toLocaleDateString()}</div>
         </div>
+        <div class="qh-review">Review &rarr;</div>
       </div>`;
   }).join('');
+}
+
+async function viewQuizAttempt(attemptId) {
+  const res = await API.get(`/quiz/history/${attemptId}/`);
+  if (res.ok && res.data.attempt) {
+    showResults({ attempt: res.data.attempt }, { isReview: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    showToast(res.data.error || 'Could not load quiz review.', 'error');
+  }
 }
 
 function capitalize(str) {

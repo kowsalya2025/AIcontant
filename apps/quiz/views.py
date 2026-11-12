@@ -1,3 +1,5 @@
+from django.db import transaction
+from django.db.models import Avg
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -9,6 +11,10 @@ from .serializers import (
     QuizSerializer, QuizAttemptSerializer
 )
 from ai_services.llm_service import LLMService
+from ai_services.validators import (
+    validate_subject_topic_relevance,
+    build_language_and_domain_rules,
+)
 import json
 import re
 
@@ -32,8 +38,23 @@ def generate_quiz_view(request):
         topic = f"{subject} Fundamentals"
     num_questions = data.get('num_questions', 5)
 
+    is_valid_topic, validation_error = validate_subject_topic_relevance(
+        subject, topic, llm_service=llm_service
+    )
+    if not is_valid_topic:
+        return Response(
+            {'error': validation_error},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    language_domain_rules = build_language_and_domain_rules(
+        subject=subject,
+        topic=topic,
+        is_quiz=True,
+    )
+
     prompt = f"""Generate a {num_questions}-question multiple choice quiz about "{topic}" in the subject "{subject}".
-If the subject is a language/literature (e.g., Tamil / தமிழ்), formulate authentic questions appropriate for that language and cultural/educational context.
+{language_domain_rules}
 Skill Level: {skill_level}
 
 Return ONLY a valid JSON array with this exact structure (no markdown, no explanation):
@@ -48,7 +69,7 @@ Return ONLY a valid JSON array with this exact structure (no markdown, no explan
 
 Generate exactly {num_questions} questions appropriate for {skill_level} level. Return only the JSON array."""
 
-    raw_response = llm_service.generate(prompt)
+    raw_response = llm_service.generate(prompt, temperature=0.2)
 
     # Parse JSON from LLM response
     questions = _parse_quiz_json(raw_response, num_questions)
@@ -85,34 +106,48 @@ def submit_quiz_view(request):
     data = serializer.validated_data
     student = request.user
 
-    try:
-        quiz = Quiz.objects.get(pk=data['quiz_id'], student=student)
-    except Quiz.DoesNotExist:
-        return Response({'error': 'Quiz not found.'}, status=status.HTTP_404_NOT_FOUND)
+    with transaction.atomic():
+        try:
+            quiz = Quiz.objects.select_for_update().get(pk=data['quiz_id'], student=student)
+        except Quiz.DoesNotExist:
+            return Response({'error': 'Quiz not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-    student_answers = data['answers']
-    questions = quiz.questions
-    correct_count = 0
-    correct_answers = []
+        # Idempotency guard: prevent duplicate submissions for the same quiz
+        existing_attempt = QuizAttempt.objects.filter(
+            student=student, quiz=quiz
+        ).order_by('-completed_at').first()
+        if existing_attempt:
+            points_earned = int(existing_attempt.score / 10) * 5
+            return Response({
+                'attempt': QuizAttemptSerializer(existing_attempt).data,
+                'points_earned': points_earned,
+                'duplicate_prevented': True,
+                'message': f'Quiz submitted! You scored {existing_attempt.score:.0f}%'
+            })
 
-    for i, question in enumerate(questions):
-        student_ans = student_answers[i] if i < len(student_answers) else ''
-        correct_ans = question.get('correct_answer', '')
-        is_correct = student_ans.strip().upper()[:1] == correct_ans.strip().upper()[:1]
-        if is_correct:
-            correct_count += 1
-        correct_answers.append({
-            'question': question.get('question', ''),
-            'your_answer': student_ans,
-            'correct_answer': correct_ans,
-            'is_correct': is_correct,
-            'explanation': question.get('explanation', '')
-        })
+        student_answers = data['answers']
+        questions = quiz.questions
+        correct_count = 0
+        correct_answers = []
 
-    score = (correct_count / len(questions)) * 100 if questions else 0
+        for i, question in enumerate(questions):
+            student_ans = student_answers[i] if i < len(student_answers) else ''
+            correct_ans = question.get('correct_answer', '')
+            is_correct = student_ans.strip().upper()[:1] == correct_ans.strip().upper()[:1]
+            if is_correct:
+                correct_count += 1
+            correct_answers.append({
+                'question': question.get('question', ''),
+                'your_answer': student_ans,
+                'correct_answer': correct_ans,
+                'is_correct': is_correct,
+                'explanation': question.get('explanation', '')
+            })
 
-    # Generate AI feedback
-    feedback_prompt = f"""A student scored {score:.0f}% ({correct_count}/{len(questions)}) on a quiz about "{quiz.topic}" in {quiz.subject} at {quiz.skill_level} level.
+        score = (correct_count / len(questions)) * 100 if questions else 0
+
+        # Generate AI feedback
+        feedback_prompt = f"""A student scored {score:.0f}% ({correct_count}/{len(questions)}) on a quiz about "{quiz.topic}" in {quiz.subject} at {quiz.skill_level} level.
 Write 2-3 sentences of encouraging, personalized feedback that:
 1. Acknowledges their performance
 2. Identifies a key area to improve
@@ -120,37 +155,37 @@ Write 2-3 sentences of encouraging, personalized feedback that:
 
 Be concise and motivating."""
 
-    feedback = llm_service.generate(feedback_prompt) or "Great effort! Keep practicing to improve your understanding."
+        feedback = llm_service.generate(feedback_prompt, temperature=0.2) or "Great effort! Keep practicing to improve your understanding."
 
-    attempt = QuizAttempt.objects.create(
-        student=student,
-        quiz=quiz,
-        answers=student_answers,
-        correct_answers=correct_answers,
-        score=score,
-        total_questions=len(questions),
-        correct_count=correct_count,
-        time_taken_seconds=data.get('time_taken_seconds', 0),
-        feedback=feedback
-    )
+        attempt = QuizAttempt.objects.create(
+            student=student,
+            quiz=quiz,
+            answers=student_answers,
+            correct_answers=correct_answers,
+            score=score,
+            total_questions=len(questions),
+            correct_count=correct_count,
+            time_taken_seconds=data.get('time_taken_seconds', 0),
+            feedback=feedback
+        )
 
-    # Update learning profile
-    try:
-        lp = student.learning_profile
-        total = lp.total_quizzes_taken + 1
-        lp.average_quiz_score = ((lp.average_quiz_score * lp.total_quizzes_taken) + score) / total
-        lp.total_quizzes_taken = total
-        if score < 60 and quiz.topic not in lp.weak_topics:
-            lp.weak_topics.append(quiz.topic)
-        elif score >= 80 and quiz.topic not in lp.strong_topics:
-            lp.strong_topics.append(quiz.topic)
-        lp.save()
-    except Exception:
-        pass
+        # Update learning profile accurately from actual attempt records
+        try:
+            lp = student.learning_profile
+            attempts_qs = QuizAttempt.objects.filter(student=student)
+            lp.total_quizzes_taken = attempts_qs.count()
+            lp.average_quiz_score = attempts_qs.aggregate(avg=Avg('score'))['avg'] or 0.0
+            if score < 60 and quiz.topic not in lp.weak_topics:
+                lp.weak_topics.append(quiz.topic)
+            elif score >= 80 and quiz.topic not in lp.strong_topics:
+                lp.strong_topics.append(quiz.topic)
+            lp.save()
+        except Exception:
+            pass
 
-    points_earned = int(score / 10) * 5  # up to 50 points
-    student.total_points += points_earned
-    student.save(update_fields=['total_points'])
+        points_earned = int(score / 10) * 5  # up to 50 points
+        student.total_points += points_earned
+        student.save(update_fields=['total_points'])
 
     return Response({
         'attempt': QuizAttemptSerializer(attempt).data,
@@ -165,9 +200,20 @@ def quiz_history_view(request):
     """Retrieve student's quiz attempt history."""
     attempts = QuizAttempt.objects.filter(student=request.user).order_by('-completed_at')[:20]
     return Response({
-        'count': attempts.count(),
+        'count': len(attempts),
         'attempts': QuizAttemptSerializer(attempts, many=True).data
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def quiz_attempt_detail_view(request, pk):
+    """Retrieve a single completed quiz attempt for answer review."""
+    try:
+        attempt = QuizAttempt.objects.select_related('quiz').get(pk=pk, student=request.user)
+    except QuizAttempt.DoesNotExist:
+        return Response({'error': 'Quiz attempt not found.'}, status=status.HTTP_404_NOT_FOUND)
+    return Response({'attempt': QuizAttemptSerializer(attempt).data})
 
 
 def _parse_quiz_json(raw_text, expected_count):
